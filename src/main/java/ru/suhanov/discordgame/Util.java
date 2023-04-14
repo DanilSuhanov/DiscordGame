@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 public class Util {
     private Util() {}
 
-    public static boolean allOptionsNotNull(OptionMapping ... optionMappings) {
+    public static boolean allOptionsHasValue(OptionMapping ... optionMappings) {
         for (OptionMapping option : optionMappings) {
             if (option == null)
                 return false;
