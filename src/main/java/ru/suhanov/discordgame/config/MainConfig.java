@@ -63,6 +63,8 @@ public class MainConfig {
                 Commands.slash("move_to", "Moving to another galaxy")
                         .addOption(OptionType.STRING, "galaxy", "Destination"),
                 Commands.slash("create_oil_miner", "Create oil miner")
+                        .addOption(OptionType.STRING, "title", "Miner title"),
+                Commands.slash("create_metal_miner", "Create metal miner")
                         .addOption(OptionType.STRING, "title", "Miner title")
         ).queue();
 
