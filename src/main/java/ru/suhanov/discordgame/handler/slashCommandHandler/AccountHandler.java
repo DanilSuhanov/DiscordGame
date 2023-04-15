@@ -41,7 +41,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             if (Util.allOptionsHasValue(name)) {
                 try {
                     GameUser gameUser = new GameUser(name.getAsString(), event.getMember().getIdLong(), 0L,
-                            galaxyService.findStarterGalaxy(), 10, 20);
+                            galaxyService.findStarterGalaxy(), 10, 60);
                     gameUserService.newGameUser(gameUser);
                     event.reply("Пользователь - " + gameUser.getName() + " зарегистрирован!").queue();
                 } catch (DataBaseException e) {

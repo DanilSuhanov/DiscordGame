@@ -2,6 +2,8 @@ package ru.suhanov.discordgame;
 
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
+import java.util.Random;
+
 public class Util {
     private Util() {}
 
@@ -11,5 +13,9 @@ public class Util {
                 return false;
         }
         return true;
+    }
+
+    public static int getRandomFromTo(int from, int to) {
+        return new Random().nextInt(to - from + 1) + from;
     }
 }

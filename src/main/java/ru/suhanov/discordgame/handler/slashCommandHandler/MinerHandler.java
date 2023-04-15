@@ -37,6 +37,14 @@ public class MinerHandler extends AbstractSlashCommandHandler {
         addCommand(new Command<>("create_metal_miner", (event) -> {
             createMiner(new MetalMiner(), event);
         }));
+
+        addCommand(new Command<>("launch_all_miners", (event) -> {
+            try {
+                event.reply(minerService.workAll(event.getMember().getIdLong())).queue();
+            } catch (DataBaseException e) {
+                event.reply(e.getMessage()).queue();
+            }
+        }));
     }
 
     private <T extends Miner> void createMiner(T miner, SlashCommandInteraction event) {

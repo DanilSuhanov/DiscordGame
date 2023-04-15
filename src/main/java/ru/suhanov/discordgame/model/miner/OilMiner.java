@@ -3,16 +3,18 @@ package ru.suhanov.discordgame.model.miner;
 import jakarta.persistence.Entity;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.model.GameUser;
 
 import java.time.LocalDateTime;
+import java.util.Random;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 public class OilMiner extends Miner{
-
-    public static final int OUTPUT = 5;
+    public static final int OUTPUT_MIN = 2;
+    public static final int OUTPUT_MAX = 5;
     public static final int COST = 10;
     public OilMiner() {
         type = ResourceType.OIL;
@@ -30,7 +32,8 @@ public class OilMiner extends Miner{
 
     @Override
     protected String work() {
-        owner.setOil(owner.getOil() + OUTPUT);
-        return "Топливный майнер " + title + " выполнил работу!";
+        int result = Util.getRandomFromTo(OUTPUT_MIN, OUTPUT_MAX);
+        owner.setOil(owner.getOil() + result);
+        return "Топливный майнер " + title + " выполнил работу. В склад было добавлено " + result + " топлива.";
     }
 }

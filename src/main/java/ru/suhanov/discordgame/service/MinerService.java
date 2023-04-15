@@ -5,7 +5,10 @@ import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.miner.Miner;
+import ru.suhanov.discordgame.model.miner.ResourceType;
 import ru.suhanov.discordgame.repository.MinerRepository;
+
+import java.util.List;
 
 @Service
 public class MinerService {
@@ -31,5 +34,17 @@ public class MinerService {
         else {
             throw new DataBaseException("Майнер с таким названием уже существует!");
         }
+    }
+
+    public String workAll(Long userId) throws DataBaseException {
+        GameUser gameUser = gameUserService.findGameUserByDiscordId(userId);
+        List<Miner> miners = gameUser.getMiners();
+        miners.sort(Miner::compareTo);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Miner miner : miners) {
+            stringBuilder.append("\n").append(miner.start());
+        }
+        gameUserService.save(gameUser);
+        return stringBuilder.toString();
     }
 }

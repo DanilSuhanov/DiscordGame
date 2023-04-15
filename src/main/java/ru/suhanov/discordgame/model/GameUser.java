@@ -26,7 +26,7 @@ public class GameUser {
 
     private int metal;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Miner> miners;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

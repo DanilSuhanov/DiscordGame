@@ -65,6 +65,9 @@ public class MainConfig {
                 Commands.slash("create_oil_miner", "Create oil miner")
                         .addOption(OptionType.STRING, "title", "Miner title"),
                 Commands.slash("create_metal_miner", "Create metal miner")
+                        .addOption(OptionType.STRING, "title", "Miner title"),
+                Commands.slash("launch_all_miners", "Launch all miners"),
+                Commands.slash("launch", "Launch one miner")
                         .addOption(OptionType.STRING, "title", "Miner title")
         ).queue();
 
