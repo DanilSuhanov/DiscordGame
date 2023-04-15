@@ -3,7 +3,9 @@ package ru.suhanov.discordgame.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.suhanov.discordgame.model.miner.Miner;
 
+import java.util.List;
 import java.util.Objects;
 
 @Data
@@ -22,15 +24,21 @@ public class GameUser {
 
     private int oil;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    private int metal;
+
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Miner> miners;
+
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private Galaxy location;
 
-    public GameUser(String name, Long discordId, Long money, Galaxy galaxy, int oil) {
+    public GameUser(String name, Long discordId, Long money, Galaxy galaxy, int oil, int metal) {
         this.name = name;
         this.discordId = discordId;
         this.money = money;
         this.location = galaxy;
         this.oil = oil;
+        this.metal = metal;
     }
 
     @Override

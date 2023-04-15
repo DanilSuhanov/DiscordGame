@@ -3,6 +3,7 @@ package ru.suhanov.discordgame.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.service.GalaxyService;
 
 import java.util.ArrayList;
@@ -24,17 +25,20 @@ public class Galaxy {
 
     private boolean starter;
 
-    public Galaxy(String title, int size, boolean starter) {
-        this.title = title;
-        this.size = size;
-        this.starter = starter;
-    }
-
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GameUser> gameUsers = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Galaxy> neighbors = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Miner> miners = new ArrayList<>();
+
+    public Galaxy(String title, int size, boolean starter) {
+        this.title = title;
+        this.size = size;
+        this.starter = starter;
+    }
 
     public void addNeighbors(List<Galaxy> galaxies) {
         if (galaxies.size() > 0)

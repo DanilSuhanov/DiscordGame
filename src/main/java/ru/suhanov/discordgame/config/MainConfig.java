@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import ru.suhanov.discordgame.handler.slashCommandHandler.AccountHandler;
 import ru.suhanov.discordgame.handler.slashCommandHandler.GalaxyHandler;
+import ru.suhanov.discordgame.handler.slashCommandHandler.MinerHandler;
 
 @Configuration
 @ComponentScan(basePackages = "ru.suhanov.discordgame")
@@ -23,11 +24,13 @@ public class MainConfig {
 
     private final AccountHandler accountHandler;
     private final GalaxyHandler galaxyHandler;
+    private final MinerHandler minerHandler;
 
     @Autowired
-    public MainConfig(AccountHandler accountHandler, GalaxyHandler galaxyHandler) {
+    public MainConfig(AccountHandler accountHandler, GalaxyHandler galaxyHandler, MinerHandler minerHandler) {
         this.accountHandler = accountHandler;
         this.galaxyHandler = galaxyHandler;
+        this.minerHandler = minerHandler;
     }
 
     @Bean
@@ -43,7 +46,7 @@ public class MainConfig {
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                         GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.GUILD_MESSAGE_REACTIONS)
-                .addEventListeners(accountHandler, galaxyHandler)
+                .addEventListeners(accountHandler, galaxyHandler, minerHandler)
                 .setActivity(Activity.playing("GreatSpase"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .build();
@@ -58,7 +61,9 @@ public class MainConfig {
                 Commands.slash("registration", "Create game user")
                         .addOption(OptionType.STRING, "name", "username"),
                 Commands.slash("move_to", "Moving to another galaxy")
-                        .addOption(OptionType.STRING, "galaxy", "Destination")
+                        .addOption(OptionType.STRING, "galaxy", "Destination"),
+                Commands.slash("create_oil_miner", "Create oil miner")
+                        .addOption(OptionType.STRING, "title", "Miner title")
         ).queue();
 
         return jda;

@@ -29,6 +29,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                 event.reply("Имя - " + gameUser.getName()
                         + "\nДеньги - " + gameUser.getMoney()
                         + "\nТопливо - " + gameUser.getOil()
+                        + "\nМетал - " + gameUser.getMetal()
                         + "\nТекущая галактика - " + gameUser.getLocation().getTitle()).queue();
             } catch (DataBaseException e) {
                 event.reply(e.getMessage()).queue();
@@ -40,7 +41,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             if (Util.allOptionsHasValue(name)) {
                 try {
                     GameUser gameUser = new GameUser(name.getAsString(), event.getMember().getIdLong(), 0L,
-                            galaxyService.findStarterGalaxy(), 1);
+                            galaxyService.findStarterGalaxy(), 10, 20);
                     gameUserService.newGameUser(gameUser);
                     event.reply("Пользователь - " + gameUser.getName() + " зарегистрирован!").queue();
                 } catch (DataBaseException e) {
