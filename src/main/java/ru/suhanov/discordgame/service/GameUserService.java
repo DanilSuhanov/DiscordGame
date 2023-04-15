@@ -32,4 +32,8 @@ public class GameUserService {
         else
             throw new DataBaseException("Пользователь не найден!");
     }
+
+    public void save(GameUser gameUser) {
+        gameUserRepository.save(gameUser);
+    }
 }

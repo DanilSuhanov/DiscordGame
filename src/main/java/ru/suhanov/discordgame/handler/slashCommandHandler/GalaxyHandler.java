@@ -7,7 +7,9 @@ import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.Galaxy;
+import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.service.GalaxyService;
+import ru.suhanov.discordgame.service.GameUserService;
 
 import java.util.List;
 
@@ -16,9 +18,12 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
     public static final int LARGE_SIZE = 30;
 
     private final GalaxyService galaxyService;
+    private final GameUserService gameUserService;
+
     @Autowired
-    protected GalaxyHandler(GalaxyService galaxyService) {
+    protected GalaxyHandler(GalaxyService galaxyService, GameUserService gameUserService) {
         this.galaxyService = galaxyService;
+        this.gameUserService = gameUserService;
     }
 
     @Override
@@ -38,6 +43,22 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
                     }
                     galaxyService.newGalaxy(galaxy);
                     event.reply("Галактика " + galaxy.getTitle() + " успешно создана!").queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            } else {
+                event.reply("Ошибка ввода данных!").queue();
+            }
+        }));
+
+        addCommand(new Command<>("move_to", (event) -> {
+            OptionMapping galaxyName = event.getOption("galaxy");
+            if (Util.allOptionsHasValue(galaxyName)) {
+                try {
+                    GameUser gameUser = gameUserService.findGameUserByDiscordId(event.getMember().getIdLong());
+
+                    galaxyService.moveTo(galaxyName.getAsString(), event.getMember().getIdLong());
+                    event.reply(gameUser.getName() + " перешёл в галактику " + galaxyName.getAsString()).queue();
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }

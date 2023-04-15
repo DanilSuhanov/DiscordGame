@@ -56,7 +56,9 @@ public class MainConfig {
                         .addOption(OptionType.STRING, "neighbors", "Galaxy neighbors separated by a space"),
                 Commands.slash("profile", "Get profile info"),
                 Commands.slash("registration", "Create game user")
-                        .addOption(OptionType.STRING, "name", "username")
+                        .addOption(OptionType.STRING, "name", "username"),
+                Commands.slash("move_to", "Moving to another galaxy")
+                        .addOption(OptionType.STRING, "galaxy", "Destination")
         ).queue();
 
         return jda;

@@ -3,6 +3,7 @@ package ru.suhanov.discordgame.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.suhanov.discordgame.service.GalaxyService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,16 +35,6 @@ public class Galaxy {
 
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Galaxy> neighbors = new ArrayList<>();
-
-    public String moveTo(GameUser gameUser) {
-        if (neighbors.contains(gameUser.getLocation())) {
-            gameUser.setLocation(this);
-            return gameUser.getName() + " перешёл в галактику " + title;
-        } else {
-            return "Галактика " + gameUser.getLocation().getTitle()
-                    + " не имеет переход в галактику " + title;
-        }
-    }
 
     public void addNeighbors(List<Galaxy> galaxies) {
         if (galaxies.size() > 0)

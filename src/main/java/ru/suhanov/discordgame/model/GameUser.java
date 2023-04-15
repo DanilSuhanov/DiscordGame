@@ -20,14 +20,17 @@ public class GameUser {
 
     private Long money;
 
+    private int oil;
+
     @ManyToOne(fetch = FetchType.EAGER)
     private Galaxy location;
 
-    public GameUser(String name, Long discordId, Long money, Galaxy galaxy) {
+    public GameUser(String name, Long discordId, Long money, Galaxy galaxy, int oil) {
         this.name = name;
         this.discordId = discordId;
         this.money = money;
         this.location = galaxy;
+        this.oil = oil;
     }
 
     @Override
