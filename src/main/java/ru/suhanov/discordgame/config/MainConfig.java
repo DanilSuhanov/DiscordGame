@@ -13,6 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import ru.suhanov.discordgame.handler.slashCommandHandler.AccountHandler;
 import ru.suhanov.discordgame.handler.slashCommandHandler.GalaxyHandler;
+import ru.suhanov.discordgame.handler.slashCommandHandler.MilitaryHandler;
 import ru.suhanov.discordgame.handler.slashCommandHandler.MinerHandler;
 
 @Configuration
@@ -25,12 +26,14 @@ public class MainConfig {
     private final AccountHandler accountHandler;
     private final GalaxyHandler galaxyHandler;
     private final MinerHandler minerHandler;
+    private final MilitaryHandler militaryHandler;
 
     @Autowired
-    public MainConfig(AccountHandler accountHandler, GalaxyHandler galaxyHandler, MinerHandler minerHandler) {
+    public MainConfig(AccountHandler accountHandler, GalaxyHandler galaxyHandler, MinerHandler minerHandler, MilitaryHandler militaryHandler) {
         this.accountHandler = accountHandler;
         this.galaxyHandler = galaxyHandler;
         this.minerHandler = minerHandler;
+        this.militaryHandler = militaryHandler;
     }
 
     @Bean
@@ -46,7 +49,7 @@ public class MainConfig {
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                         GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.GUILD_MESSAGE_REACTIONS)
-                .addEventListeners(accountHandler, galaxyHandler, minerHandler)
+                .addEventListeners(accountHandler, galaxyHandler, minerHandler, militaryHandler)
                 .setActivity(Activity.playing("GreatSpase"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .build();
@@ -68,7 +71,9 @@ public class MainConfig {
                         .addOption(OptionType.STRING, "title", "Miner title"),
                 Commands.slash("launch_all_miners", "Launch all miners"),
                 Commands.slash("launch", "Launch one miner")
-                        .addOption(OptionType.STRING, "title", "Miner title")
+                        .addOption(OptionType.STRING, "title", "Miner title"),
+                Commands.slash("create_spaceship", "Create spaceship")
+                        .addOption(OptionType.STRING, "title", "Spaceship title")
         ).queue();
 
         return jda;

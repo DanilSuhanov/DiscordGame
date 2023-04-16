@@ -1,5 +1,6 @@
 package ru.suhanov.discordgame.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
@@ -11,6 +12,7 @@ import ru.suhanov.discordgame.repository.MinerRepository;
 import java.util.List;
 
 @Service
+@Transactional
 public class MinerService {
     private final MinerRepository minerRepository;
     private final GameUserService gameUserService;

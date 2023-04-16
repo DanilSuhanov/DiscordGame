@@ -3,6 +3,7 @@ package ru.suhanov.discordgame.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.suhanov.discordgame.model.military.Spaceship;
 import ru.suhanov.discordgame.model.miner.Miner;
 
 import java.util.List;
@@ -26,8 +27,11 @@ public class GameUser {
 
     private int metal;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Miner> miners;
+
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Spaceship> spaceships;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private Galaxy location;
@@ -39,6 +43,31 @@ public class GameUser {
         this.location = galaxy;
         this.oil = oil;
         this.metal = metal;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Имя - ").append(name)
+                .append("\nДеньги - ").append(money)
+                .append("\nТопливо - ").append(oil)
+                .append("\nМетал - ").append(metal)
+                .append("\nТекущая галактика - ").append(location.getTitle());
+        if (miners.size() > 0) {
+            stringBuilder.append("\n\nМайнеры: ");
+            for (Miner miner : miners) {
+                stringBuilder.append("\n").append(miner.getTitle()).append(" - ").append(miner.getType().toString());
+            }
+        }
+        if (spaceships.size() > 0) {
+            stringBuilder.append("\n\nКорабли: ");
+            stringBuilder.append("\nСреднее состояние кораблей - ")
+                    .append(spaceships.stream().map(Spaceship::getCondition).reduce(Integer::sum).get() / spaceships.size());
+            for (Spaceship spaceship : spaceships) {
+                stringBuilder.append("\n").append(spaceship.getTitle()).append(": состояние - ").append(spaceship.getCondition());
+            }
+        }
+        return stringBuilder.toString();
     }
 
     @Override

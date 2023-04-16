@@ -5,11 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.GameUser;
-import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.repository.GameUserRepository;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -35,6 +31,10 @@ public class GameUserService {
             return gameUser;
         else
             throw new DataBaseException("Пользователь не найден!");
+    }
+
+    public String getString(Long userId) throws DataBaseException {
+        return findGameUserByDiscordId(userId).toString();
     }
 
     public void save(GameUser gameUser) {

@@ -25,12 +25,8 @@ public class AccountHandler extends AbstractSlashCommandHandler {
     protected void initHandler() {
         addCommand(new Command<>("profile", (event -> {
             try {
-                GameUser gameUser = gameUserService.findGameUserByDiscordId(event.getMember().getIdLong());
-                event.reply("Имя - " + gameUser.getName()
-                        + "\nДеньги - " + gameUser.getMoney()
-                        + "\nТопливо - " + gameUser.getOil()
-                        + "\nМетал - " + gameUser.getMetal()
-                        + "\nТекущая галактика - " + gameUser.getLocation().getTitle()).queue();
+                String res = gameUserService.getString(event.getMember().getIdLong());
+                event.reply(res).queue();
             } catch (DataBaseException e) {
                 event.reply(e.getMessage()).queue();
             }
