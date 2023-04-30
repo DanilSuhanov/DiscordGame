@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.suhanov.discordgame.model.military.Spaceship;
 import ru.suhanov.discordgame.model.miner.Miner;
+import ru.suhanov.discordgame.model.miner.ResourceType;
+import ru.suhanov.discordgame.model.union.Faction;
 
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +38,25 @@ public class GameUser {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private Galaxy location;
 
+
+    //Unions
+    @ManyToOne(fetch = FetchType.EAGER)
+    private Faction faction;
+
+    //OwnedFaction
+    @OneToOne(mappedBy = "leader")
+    private Faction ownedFaction;
+
+
+    public void addResource(int amount, ResourceType type) {
+        switch (type) {
+            case METAL -> {
+                metal += amount;
+            }
+            case OIL -> oil += amount;
+        }
+    }
+
     public GameUser(String name, Long discordId, Long money, Galaxy galaxy, int oil, int metal) {
         this.name = name;
         this.discordId = discordId;
@@ -48,8 +69,13 @@ public class GameUser {
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Имя - ").append(name)
-                .append("\nДеньги - ").append(money)
+        stringBuilder.append("Имя - ").append(name);
+        if (faction != null) {
+            stringBuilder.append("\nФракция - ").append(faction.getTitle());
+        } else if (ownedFaction != null) {
+            stringBuilder.append("\nФракция - ").append(ownedFaction.getTitle());
+        }
+        stringBuilder.append("\nДеньги - ").append(money)
                 .append("\nТопливо - ").append(oil)
                 .append("\nМетал - ").append(metal)
                 .append("\nТекущая галактика - ").append(location.getTitle());

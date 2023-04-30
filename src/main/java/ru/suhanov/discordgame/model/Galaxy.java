@@ -1,8 +1,10 @@
 package ru.suhanov.discordgame.model;
 
 import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.service.GalaxyService;
 
@@ -25,14 +27,17 @@ public class Galaxy {
 
     private boolean starter;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GameUser> gameUsers = new ArrayList<>();
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GameUser> gameUsers;
 
     @ManyToMany(fetch = FetchType.LAZY)
-    private List<Galaxy> neighbors = new ArrayList<>();
+    @JoinTable(name = "galaxy_neighbors",
+            joinColumns = @JoinColumn(name = "galaxy_id"),
+            inverseJoinColumns = @JoinColumn(name = "neighbor_id"))
+    private List<Galaxy> neighbors;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Miner> miners = new ArrayList<>();
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Miner> miners;
 
     public Galaxy(String title, int size, boolean starter) {
         this.title = title;
@@ -43,6 +48,40 @@ public class Galaxy {
     public void addNeighbors(List<Galaxy> galaxies) {
         if (galaxies.size() > 0)
             neighbors.addAll(galaxies);
+    }
+
+    @Override
+    @Transactional
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Информаци о галактике:")
+                .append("\nНазвание - ").append(title)
+                .append("\nРазмер - ").append(size)
+                .append("\nСтартовая - ").append(starter);
+        if (getNeighbors().size() > 0) {
+            stringBuilder.append("\n\nСоседи:");
+            for (Galaxy galaxy : getNeighbors()) {
+                stringBuilder.append("\nНазвание - ").append(galaxy.getTitle());
+            }
+        }
+        if (getGameUsers().size() > 0) {
+            stringBuilder.append("\n\nИгроки:");
+            for (GameUser gameUser : getGameUsers()) {
+                stringBuilder.append("\nНикнейм - ").append(gameUser.getName());
+            }
+        }
+        if (getMiners().size() > 0) {
+            stringBuilder.append("\n\nМайнеры:");
+            int count = 1;
+            for (Miner miner : getMiners()) {
+                String space = Util.getStingCount(Util.getSection(count) + 3);
+                stringBuilder.append("\n").append(count).append(". Название - ").append(miner.getTitle())
+                        .append("\n").append(space).append("Тип - ").append(miner.getType())
+                        .append("\n").append(space).append("Владелец - ").append(miner.getOwner().getName());
+                count++;
+            }
+        }
+        return stringBuilder.toString();
     }
 
     @Override

@@ -34,9 +34,9 @@ public class MetalMiner extends Miner {
     @Override
     protected String work() {
         if (owner.getOil() >= WORK_COST) {
-            owner.setOil(owner.getOil() - WORK_COST);
+            owner.addResource(-WORK_COST, ResourceType.OIL);
             int result = Util.getRandomFromTo(OUTPUT_MIN, OUTPUT_MAX);
-            owner.setMetal(owner.getMetal() + result);
+            owner.addResource(result, ResourceType.METAL);
             return "Метал майнер " + title + " выполнил работу. В склад было добавлено " + result + " метала.";
         } else {
             return "Недостаточно топлива для запуска метал майнера " + title;

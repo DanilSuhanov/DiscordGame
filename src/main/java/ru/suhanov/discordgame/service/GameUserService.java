@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
+import ru.suhanov.discordgame.model.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.repository.GameUserRepository;
 
@@ -11,14 +12,23 @@ import ru.suhanov.discordgame.repository.GameUserRepository;
 @Transactional
 public class GameUserService {
 
+    public static final long START_MONEY = 0L;
+    public static final int START_OIL = 30;
+    public static final int START_METAL = 60;
+
     private final GameUserRepository gameUserRepository;
+    private final GalaxyService galaxyService;
 
     @Autowired
-    public GameUserService(GameUserRepository gameUserRepository) {
+    public GameUserService(GameUserRepository gameUserRepository, GalaxyService galaxyService) {
         this.gameUserRepository = gameUserRepository;
+        this.galaxyService = galaxyService;
     }
 
-    public void newGameUser(GameUser gameUser) throws DataBaseException {
+    public void newGameUser(String name, Long id) throws DataBaseException {
+        Galaxy galaxy = galaxyService.findStarterGalaxy();
+        GameUser gameUser = new GameUser(name, id, START_MONEY, galaxy, START_OIL, START_METAL);
+
         if (!gameUserRepository.existsGameUserByNameOrDiscordId(gameUser.getName(), gameUser.getDiscordId()))
             gameUserRepository.save(gameUser);
         else

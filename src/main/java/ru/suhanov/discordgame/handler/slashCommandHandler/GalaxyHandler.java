@@ -66,5 +66,14 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
                 event.reply("Ошибка ввода данных!").queue();
             }
         }));
+
+        addCommand(new Command<>("galaxy_info", (event) -> {
+            try {
+                String result = galaxyService.getString(event.getMember().getIdLong());
+                event.reply(result).queue();
+            } catch (DataBaseException e) {
+                event.reply(e.getMessage()).queue();
+            }
+        }));
     }
 }

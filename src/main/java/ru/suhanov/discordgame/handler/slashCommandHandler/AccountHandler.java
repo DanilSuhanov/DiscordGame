@@ -7,6 +7,8 @@ import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.GameUser;
+import ru.suhanov.discordgame.model.union.Faction;
+import ru.suhanov.discordgame.service.FactionService;
 import ru.suhanov.discordgame.service.GalaxyService;
 import ru.suhanov.discordgame.service.GameUserService;
 
@@ -14,11 +16,13 @@ import ru.suhanov.discordgame.service.GameUserService;
 public class AccountHandler extends AbstractSlashCommandHandler {
     private final GameUserService gameUserService;
     private final GalaxyService galaxyService;
+    private final FactionService factionService;
 
     @Autowired
-    public AccountHandler(GameUserService gameUserService, GalaxyService galaxyService) {
+    public AccountHandler(GameUserService gameUserService, GalaxyService galaxyService, FactionService factionService) {
         this.gameUserService = gameUserService;
         this.galaxyService = galaxyService;
+        this.factionService = factionService;
     }
 
     @Override
@@ -36,15 +40,28 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             OptionMapping name = event.getOption("name");
             if (Util.allOptionsHasValue(name)) {
                 try {
-                    GameUser gameUser = new GameUser(name.getAsString(), event.getMember().getIdLong(), 0L,
-                            galaxyService.findStarterGalaxy(), 10, 60);
-                    gameUserService.newGameUser(gameUser);
-                    event.reply("Пользователь - " + gameUser.getName() + " зарегистрирован!").queue();
+                    gameUserService.newGameUser(name.getAsString(), event.getMember().getIdLong());
+                    event.reply("Пользователь - " + name.getAsString() + " зарегистрирован!").queue();
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }
             } else {
                 event.reply("Ошибка ввода данных!").queue();
+            }
+        }));
+
+        addCommand(new Command<>("create_faction", (event) -> {
+            OptionMapping title = event.getOption("title");
+            OptionMapping description = event.getOption("description");
+            if (Util.allOptionsHasValue(title, description)) {
+                try {
+                    factionService.createFaction(title.getAsString(), description.getAsString(),
+                            event.getMember().getIdLong());
+
+                    event.reply("Фракция " + title.getAsString() + " успешно создана!").queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
             }
         }));
     }

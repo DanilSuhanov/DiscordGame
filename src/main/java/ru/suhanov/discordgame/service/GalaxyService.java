@@ -2,6 +2,7 @@ package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.Galaxy;
@@ -21,6 +22,7 @@ public class GalaxyService {
     private final GameUserService gameUserService;
 
     @Autowired
+    @Lazy
     public GalaxyService(GalaxyRepository galaxyRepository, GameUserService gameUserService) {
         this.galaxyRepository = galaxyRepository;
         this.gameUserService = gameUserService;
@@ -73,5 +75,9 @@ public class GalaxyService {
             throw new DataBaseException("Галактика " + gameUser.getLocation().getTitle()
                     + " не имеет переход в галактику " + galaxy.getTitle());
         }
+    }
+
+    public String getString(Long userId) throws DataBaseException {
+        return gameUserService.findGameUserByDiscordId(userId).getLocation().toString();
     }
 }

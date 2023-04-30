@@ -33,7 +33,7 @@ public class OilMiner extends Miner{
     @Override
     protected String work() {
         int result = Util.getRandomFromTo(OUTPUT_MIN, OUTPUT_MAX);
-        owner.setOil(owner.getOil() + result);
+        owner.addResource(result, ResourceType.OIL);
         return "Топливный майнер " + title + " выполнил работу. В склад было добавлено " + result + " топлива.";
     }
 }

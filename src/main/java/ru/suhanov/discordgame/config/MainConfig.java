@@ -73,7 +73,11 @@ public class MainConfig {
                 Commands.slash("launch", "Launch one miner")
                         .addOption(OptionType.STRING, "title", "Miner title"),
                 Commands.slash("create_spaceship", "Create spaceship")
-                        .addOption(OptionType.STRING, "title", "Spaceship title")
+                        .addOption(OptionType.STRING, "title", "Spaceship title"),
+                Commands.slash("galaxy_info", "Get galaxy info"),
+                Commands.slash("create_faction", "Create new faction")
+                        .addOption(OptionType.STRING, "title", "Faction title")
+                        .addOption(OptionType.STRING, "description", "Description")
         ).queue();
 
         return jda;
