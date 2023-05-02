@@ -36,13 +36,9 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
 
             if (Util.allOptionsHasValue(title, size, isStarter)) {
                 try {
-                    Galaxy galaxy = new Galaxy(title.getAsString(), size.getAsInt(), isStarter.getAsBoolean());
-                    if (Util.allOptionsHasValue(neighbors)) {
-                        galaxy.addNeighbors(galaxyService.findAllGalaxyByTitle(List
-                                .of(neighbors.getAsString().split(" "))));
-                    }
-                    galaxyService.newGalaxy(galaxy);
-                    event.reply("Галактика " + galaxy.getTitle() + " успешно создана!").queue();
+                    galaxyService.newGalaxy(title.getAsString(), size.getAsInt(), isStarter.getAsBoolean(),
+                            List.of(neighbors.getAsString().split(" ")));
+                    event.reply("Галактика " + title.getAsString() + " успешно создана!").queue();
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }
@@ -56,7 +52,6 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
             if (Util.allOptionsHasValue(galaxyName)) {
                 try {
                     GameUser gameUser = gameUserService.findGameUserByDiscordId(event.getMember().getIdLong());
-
                     galaxyService.moveTo(galaxyName.getAsString(), event.getMember().getIdLong());
                     event.reply(gameUser.getName() + " перешёл в галактику " + galaxyName.getAsString()).queue();
                 } catch (DataBaseException e) {

@@ -50,6 +50,10 @@ public class Galaxy {
             neighbors.addAll(galaxies);
     }
 
+    public void addNeighbor(Galaxy galaxy) {
+        neighbors.add(galaxy);
+    }
+
     @Override
     @Transactional
     public String toString() {

@@ -51,9 +51,8 @@ public class MinerHandler extends AbstractSlashCommandHandler {
         OptionMapping title = event.getOption("title");
         if (Util.allOptionsHasValue(title)) {
             try {
-                GameUser gameUser = gameUserService.findGameUserByDiscordId(event.getMember().getIdLong());
                 miner.setTitle(title.getAsString());
-                minerService.newMiner(gameUser, miner);
+                minerService.newMiner(event.getMember().getIdLong(), miner);
                 event.reply("Майнер " + miner.getTitle() + " создан!").queue();
             } catch (DataBaseException e) {
                 event.reply(e.getMessage()).queue();

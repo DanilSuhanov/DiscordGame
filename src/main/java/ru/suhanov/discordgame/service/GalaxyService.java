@@ -28,7 +28,12 @@ public class GalaxyService {
         this.gameUserService = gameUserService;
     }
 
-    public void newGalaxy(Galaxy galaxy) throws DataBaseException {
+    public void newGalaxy(String title, int size, boolean isStarter, List<String> neighbors) throws DataBaseException {
+        Galaxy galaxy = new Galaxy(title, size, isStarter);
+
+        neighbors.forEach(neighbor -> galaxyRepository.findGalaxyByTitle(neighbor)
+                .ifPresent(galaxy::addNeighbor));
+
         if (!galaxyRepository.existsByTitle(galaxy.getTitle()))
             galaxyRepository.save(galaxy);
         else

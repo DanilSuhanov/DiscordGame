@@ -22,7 +22,9 @@ public class MinerService {
         this.gameUserService = gameUserService;
     }
 
-    public void newMiner(GameUser gameUser, Miner miner) throws DataBaseException {
+    public void newMiner(Long userId, Miner miner) throws DataBaseException {
+        GameUser gameUser = gameUserService.findGameUserByDiscordId(userId);
+
         if (!minerRepository.existsMinerByTitle(miner.getTitle())) {
             if (miner.pay(gameUser)) {
                 miner.setLocation(gameUser.getLocation());
