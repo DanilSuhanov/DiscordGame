@@ -3,6 +3,7 @@ package ru.suhanov.discordgame.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.suhanov.discordgame.model.invite.InviteToFaction;
 import ru.suhanov.discordgame.model.military.Spaceship;
 import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.ResourceType;
@@ -17,13 +18,13 @@ import java.util.Objects;
 public class GameUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private long id;
 
     private String name;
 
-    private Long discordId;
+    private long discordId;
 
-    private Long money;
+    private long money;
 
     private int oil;
 
@@ -38,6 +39,13 @@ public class GameUser {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private Galaxy location;
 
+    //Invites
+    @OneToMany(mappedBy = "from", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<InviteToFaction> outgoing;
+
+    @OneToMany(mappedBy = "to", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<InviteToFaction> incoming;
+
 
     //Unions
     @ManyToOne(fetch = FetchType.EAGER)
@@ -50,9 +58,7 @@ public class GameUser {
 
     public void addResource(int amount, ResourceType type) {
         switch (type) {
-            case METAL -> {
-                metal += amount;
-            }
+            case METAL -> metal += amount;
             case OIL -> oil += amount;
         }
     }
@@ -100,19 +106,12 @@ public class GameUser {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         GameUser gameUser = (GameUser) o;
-
-        if (!Objects.equals(id, gameUser.id)) return false;
-        if (!Objects.equals(name, gameUser.name)) return false;
-        return Objects.equals(discordId, gameUser.discordId);
+        return id == gameUser.id && discordId == gameUser.discordId && name.equals(gameUser.name);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (discordId != null ? discordId.hashCode() : 0);
-        return result;
+        return Objects.hash(id, name, discordId);
     }
 }

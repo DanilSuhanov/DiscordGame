@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface GameUserRepository extends JpaRepository<GameUser, Long> {
     boolean existsGameUserByNameOrDiscordId(String name, Long discordId);
     Optional<GameUser> findGameUserByDiscordId(Long discordId);
+    Optional<GameUser> findGameUserByName(String name);
 }

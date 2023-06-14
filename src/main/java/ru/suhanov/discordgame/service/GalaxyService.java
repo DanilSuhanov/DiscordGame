@@ -40,6 +40,15 @@ public class GalaxyService {
             throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
+    public void newGalaxy(String title, int size, boolean isStarter) throws DataBaseException {
+        Galaxy galaxy = new Galaxy(title, size, isStarter);
+
+        if (!galaxyRepository.existsByTitle(galaxy.getTitle()))
+            galaxyRepository.save(galaxy);
+        else
+            throw new DataBaseException("Галактика с таким названием уже существует!");
+    }
+
     public Galaxy findStarterGalaxy() throws DataBaseException {
         Optional<Galaxy> galaxy = galaxyRepository.findGalaxiesByStarter(true);
         if (galaxy.isPresent()) {

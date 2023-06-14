@@ -28,16 +28,16 @@ public class Galaxy {
     private boolean starter;
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GameUser> gameUsers;
+    private List<GameUser> gameUsers = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "galaxy_neighbors",
             joinColumns = @JoinColumn(name = "galaxy_id"),
             inverseJoinColumns = @JoinColumn(name = "neighbor_id"))
-    private List<Galaxy> neighbors;
+    private List<Galaxy> neighbors = new ArrayList<>();
 
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Miner> miners;
+    private List<Miner> miners = new ArrayList<>();
 
     public Galaxy(String title, int size, boolean starter) {
         this.title = title;

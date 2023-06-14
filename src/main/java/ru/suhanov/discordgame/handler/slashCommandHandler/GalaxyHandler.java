@@ -36,8 +36,12 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
 
             if (Util.allOptionsHasValue(title, size, isStarter)) {
                 try {
-                    galaxyService.newGalaxy(title.getAsString(), size.getAsInt(), isStarter.getAsBoolean(),
-                            List.of(neighbors.getAsString().split(" ")));
+                    if (neighbors == null) {
+                        galaxyService.newGalaxy(title.getAsString(), size.getAsInt(), isStarter.getAsBoolean());
+                    } else {
+                        galaxyService.newGalaxy(title.getAsString(), size.getAsInt(), isStarter.getAsBoolean(),
+                                List.of(neighbors.getAsString().split(" ")));
+                    }
                     event.reply("Галактика " + title.getAsString() + " успешно создана!").queue();
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();

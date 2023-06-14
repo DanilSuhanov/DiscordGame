@@ -57,8 +57,36 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                 try {
                     factionService.createFaction(title.getAsString(), description.getAsString(),
                             event.getMember().getIdLong());
-
                     event.reply("Фракция " + title.getAsString() + " успешно создана!").queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            }
+        }));
+
+        addCommand(new Command<>("invite_to_faction", (event) -> {
+            OptionMapping name = event.getOption("name");
+            if (Util.allOptionsHasValue(name)) {
+                try {
+                    factionService.inviteUser(event.getMember().getIdLong(), name.getAsString());
+                    event.reply("Пользователь успешно приглашён!").queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            }
+        }));
+
+        addCommand(new Command<>("check_invitations", (event) -> {
+            String res = factionService.getInvites(event.getMember().getIdLong());
+            event.reply(res).queue();
+        }));
+
+        addCommand(new Command<>("accept_invitation", (event) -> {
+            OptionMapping title = event.getOption("title");
+            if (Util.allOptionsHasValue(title)) {
+                try {
+                    factionService.acceptInvitation(title.getAsString(), event.getMember().getIdLong());
+                    event.reply("Приглашение во фракцию " + title.getAsString() + " принято!").queue();
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }
