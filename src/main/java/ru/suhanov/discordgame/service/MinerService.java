@@ -46,7 +46,7 @@ public class MinerService {
         miners.sort(Miner::compareTo);
         StringBuilder stringBuilder = new StringBuilder();
         for (Miner miner : miners) {
-            stringBuilder.append("\n").append(miner.start());
+            stringBuilder.append("\n").append(miner.start(gameUser.getLocation().getGalaxyMods()));
         }
         gameUserService.save(gameUser);
         return stringBuilder.toString();

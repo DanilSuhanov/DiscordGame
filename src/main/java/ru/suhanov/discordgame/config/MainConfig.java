@@ -58,7 +58,6 @@ public class MainConfig {
                 Commands.slash("create_galaxy", "Create new Galaxy")
                         .addOption(OptionType.STRING, "title", "Galaxy title")
                         .addOption(OptionType.STRING, "size", "Galaxy size")
-                        .addOption(OptionType.BOOLEAN, "is_starter", "Is this galaxy a starter")
                         .addOption(OptionType.STRING, "neighbors", "Galaxy neighbors separated by a space"),
                 Commands.slash("profile", "Get profile info"),
                 Commands.slash("registration", "Create game user")
@@ -74,11 +73,7 @@ public class MainConfig {
                         .addOption(OptionType.STRING, "title", "Miner title"),
                 Commands.slash("create_spaceship", "Create spaceship")
                         .addOption(OptionType.STRING, "title", "Spaceship title"),
-                Commands.slash("galaxy_info", "Get galaxy info"),
-                Commands.slash("invite_to_faction", "Invite to Faction")
-                        .addOption(OptionType.STRING, "name", "Name of the member"),
-                Commands.slash("accept_invitation", "Accept the invitation")
-                        .addOption(OptionType.STRING, "title", "Title of the faction"),
+                Commands.slash("map", "Show the map"),
                 Commands.slash("faction_info", "Faction info")
         ).queue();
 

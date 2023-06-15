@@ -3,10 +3,12 @@ package ru.suhanov.discordgame.model.miner;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
-import ru.suhanov.discordgame.model.Galaxy;
+import ru.suhanov.discordgame.model.map.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
+import ru.suhanov.discordgame.model.map.GalaxyMod;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -33,14 +35,14 @@ public class Miner implements Comparable<Miner> {
     @ManyToOne
     protected Galaxy location;
 
-    protected String work() {
+    protected String work(List<GalaxyMod> galaxyMods) {
         return "Ошибка определение типа!";
     }
 
-    public String start() {
+    public String start(List<GalaxyMod> galaxyMods) {
         if (!readyToWork())
             return "Майнер " + title + " ещё не готов к работе!";
-        String res = work();
+        String res = work(galaxyMods);
         lastWorkTime = LocalDateTime.now();
         return res;
     }

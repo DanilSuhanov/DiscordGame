@@ -5,8 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.model.GameUser;
+import ru.suhanov.discordgame.model.map.GalaxyMod;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Random;
 
 @EqualsAndHashCode(callSuper = true)
@@ -31,9 +33,11 @@ public class OilMiner extends Miner{
     }
 
     @Override
-    protected String work() {
+    protected String work(List<GalaxyMod> galaxyMods) {
         int result = Util.getRandomFromTo(OUTPUT_MIN, OUTPUT_MAX);
-        owner.addResource(result, ResourceType.OIL);
+        owner.addResource(result, ResourceType.OIL, galaxyMods.stream()
+                .filter(mod -> mod.getType().equals(ResourceType.All) || mod.getType().equals(ResourceType.OIL))
+                .toList());
         return "Топливный майнер " + title + " выполнил работу. В склад было добавлено " + result + " топлива.";
     }
 }

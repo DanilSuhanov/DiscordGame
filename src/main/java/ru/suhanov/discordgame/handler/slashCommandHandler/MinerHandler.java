@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
-import ru.suhanov.discordgame.model.Galaxy;
-import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.miner.MetalMiner;
 import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.OilMiner;

@@ -1,13 +1,12 @@
 package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
-import org.hibernate.exception.DataException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.exception.UserNotFoundException;
-import ru.suhanov.discordgame.model.Galaxy;
+import ru.suhanov.discordgame.model.map.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.repository.GameUserRepository;
 
@@ -31,7 +30,7 @@ public class GameUserService {
     }
 
     public void newGameUser(String name, Long id) throws DataBaseException {
-        Galaxy galaxy = galaxyService.findStarterGalaxy();
+        Galaxy galaxy = galaxyService.getRandomGalaxy();
         GameUser gameUser = new GameUser(name, id, START_MONEY, galaxy, START_OIL, START_METAL);
 
         if (!gameUserRepository.existsGameUserByNameOrDiscordId(gameUser.getName(), gameUser.getDiscordId()))

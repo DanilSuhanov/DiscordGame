@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
-import ru.suhanov.discordgame.model.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.service.GalaxyService;
 import ru.suhanov.discordgame.service.GameUserService;
@@ -15,8 +14,6 @@ import java.util.List;
 
 @Service
 public class GalaxyHandler extends AbstractSlashCommandHandler {
-    public static final int LARGE_SIZE = 30;
-
     private final GalaxyService galaxyService;
     private final GameUserService gameUserService;
 
@@ -28,18 +25,22 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
 
     @Override
     protected void initHandler() {
+        addCommand(new Command<>("map", (event) -> {
+
+        }));
+
+
         addCommand(new Command<>("create_galaxy", (event) -> {
             OptionMapping title = event.getOption("title");
             OptionMapping size = event.getOption("size");
-            OptionMapping isStarter = event.getOption("is_starter");
             OptionMapping neighbors = event.getOption("neighbors");
 
-            if (Util.allOptionsHasValue(title, size, isStarter)) {
+            if (Util.allOptionsHasValue(title, size)) {
                 try {
                     if (neighbors == null) {
-                        galaxyService.newGalaxy(title.getAsString(), size.getAsInt(), isStarter.getAsBoolean());
+                        galaxyService.newGalaxy(title.getAsString(), size.getAsInt());
                     } else {
-                        galaxyService.newGalaxy(title.getAsString(), size.getAsInt(), isStarter.getAsBoolean(),
+                        galaxyService.newGalaxy(title.getAsString(), size.getAsInt(),
                                 List.of(neighbors.getAsString().split(" ")));
                     }
                     event.reply("Галактика " + title.getAsString() + " успешно создана!").queue();

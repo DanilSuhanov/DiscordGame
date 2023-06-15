@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.suhanov.discordgame.model.invite.InviteToFaction;
+import ru.suhanov.discordgame.model.map.Galaxy;
+import ru.suhanov.discordgame.model.map.GalaxyMod;
 import ru.suhanov.discordgame.model.military.Spaceship;
 import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.ResourceType;
@@ -56,10 +58,14 @@ public class GameUser {
     private Faction ownedFaction;
 
 
-    public void addResource(int amount, ResourceType type) {
+    public void addResource(int amount, ResourceType type, List<GalaxyMod> galaxyMods) {
+        int res = amount;
+        for (GalaxyMod galaxyMod : galaxyMods) {
+            res = galaxyMod.result(res);
+        }
         switch (type) {
-            case METAL -> metal += amount;
-            case OIL -> oil += amount;
+            case METAL -> metal += res;
+            case OIL -> oil += res;
         }
     }
 

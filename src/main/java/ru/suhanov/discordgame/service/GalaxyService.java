@@ -5,13 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
-import ru.suhanov.discordgame.model.Galaxy;
+import ru.suhanov.discordgame.model.map.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.repository.GalaxyRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 @Transactional
@@ -28,8 +29,8 @@ public class GalaxyService {
         this.gameUserService = gameUserService;
     }
 
-    public void newGalaxy(String title, int size, boolean isStarter, List<String> neighbors) throws DataBaseException {
-        Galaxy galaxy = new Galaxy(title, size, isStarter);
+    public void newGalaxy(String title, int size, List<String> neighbors) throws DataBaseException {
+        Galaxy galaxy = new Galaxy(title, size);
 
         neighbors.forEach(neighbor -> galaxyRepository.findGalaxyByTitle(neighbor)
                 .ifPresent(galaxy::addNeighbor));
@@ -40,8 +41,8 @@ public class GalaxyService {
             throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
-    public void newGalaxy(String title, int size, boolean isStarter) throws DataBaseException {
-        Galaxy galaxy = new Galaxy(title, size, isStarter);
+    public void newGalaxy(String title, int size) throws DataBaseException {
+        Galaxy galaxy = new Galaxy(title, size);
 
         if (!galaxyRepository.existsByTitle(galaxy.getTitle()))
             galaxyRepository.save(galaxy);
@@ -49,13 +50,10 @@ public class GalaxyService {
             throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
-    public Galaxy findStarterGalaxy() throws DataBaseException {
-        Optional<Galaxy> galaxy = galaxyRepository.findGalaxiesByStarter(true);
-        if (galaxy.isPresent()) {
-            return galaxy.get();
-        } else {
-            throw new DataBaseException("Стартовая локация не найдена!");
-        }
+    public Galaxy getRandomGalaxy() {
+        List<Galaxy> galaxies = galaxyRepository.findAll();
+        int random = new Random().nextInt(0, galaxies.size());
+        return galaxies.get(random);
     }
 
     public List<Galaxy> findAllGalaxyByTitle(List<String> titles) {

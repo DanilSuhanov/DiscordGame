@@ -1,14 +1,15 @@
-package ru.suhanov.discordgame.model;
+package ru.suhanov.discordgame.model.map;
 
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.suhanov.discordgame.Util;
+import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.miner.Miner;
-import ru.suhanov.discordgame.service.GalaxyService;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,8 +26,6 @@ public class Galaxy {
 
     private int size;
 
-    private boolean starter;
-
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GameUser> gameUsers = new ArrayList<>();
 
@@ -39,10 +38,12 @@ public class Galaxy {
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Miner> miners = new ArrayList<>();
 
-    public Galaxy(String title, int size, boolean starter) {
+    @OneToMany(mappedBy = "galaxy", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GalaxyMod> galaxyMods = new ArrayList<>();
+
+    public Galaxy(String title, int size) {
         this.title = title;
         this.size = size;
-        this.starter = starter;
     }
 
     public void addNeighbors(List<Galaxy> galaxies) {
@@ -60,8 +61,7 @@ public class Galaxy {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Информаци о галактике:")
                 .append("\nНазвание - ").append(title)
-                .append("\nРазмер - ").append(size)
-                .append("\nСтартовая - ").append(starter);
+                .append("\nРазмер - ").append(size);
         if (getNeighbors().size() > 0) {
             stringBuilder.append("\n\nСоседи:");
             for (Galaxy galaxy : getNeighbors()) {
