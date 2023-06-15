@@ -75,14 +75,11 @@ public class MainConfig {
                 Commands.slash("create_spaceship", "Create spaceship")
                         .addOption(OptionType.STRING, "title", "Spaceship title"),
                 Commands.slash("galaxy_info", "Get galaxy info"),
-                Commands.slash("create_faction", "Create new faction")
-                        .addOption(OptionType.STRING, "title", "Faction title")
-                        .addOption(OptionType.STRING, "description", "Description"),
                 Commands.slash("invite_to_faction", "Invite to Faction")
                         .addOption(OptionType.STRING, "name", "Name of the member"),
-                Commands.slash("check_invitations", "Check invitations"),
                 Commands.slash("accept_invitation", "Accept the invitation")
-                        .addOption(OptionType.STRING, "title", "Title of the faction")
+                        .addOption(OptionType.STRING, "title", "Title of the faction"),
+                Commands.slash("faction_info", "Faction info")
         ).queue();
 
         return jda;

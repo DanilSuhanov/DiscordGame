@@ -1,6 +1,7 @@
 package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
@@ -10,6 +11,7 @@ import ru.suhanov.discordgame.model.union.Faction;
 import ru.suhanov.discordgame.repository.FactionRepository;
 import ru.suhanov.discordgame.repository.InviteToFactionRepository;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -40,7 +42,7 @@ public class FactionService {
                 gameUser.setFaction(faction);
                 gameUserService.save(gameUser);
             } else
-                throw new DataBaseException("Лидер фракции уже состоит в другой фракции!");
+                throw new DataBaseException("Вы уже состоите в другой фракции!");
         } else
             throw new DataBaseException("Фракция с таким названием уже существует!");
     }
@@ -55,17 +57,26 @@ public class FactionService {
         inviteToFactionRepository.save(inviteToFaction);
     }
 
-    public String getInvites(long id) {
+    public List<String> getInvites(long id) throws DataBaseException {
         List<InviteToFaction> invites = inviteToFactionRepository.findInviteToFactionsByTo_DiscordId(id);
+        List<String> result = new LinkedList<>();
         if (invites.size() == 0) {
-            return "Список пуст!";
+            throw new DataBaseException("Список пуст!");
         }
         StringBuilder stringBuilder = new StringBuilder("Список приглашений во фракции:\n");
         for (InviteToFaction invite : invites) {
             stringBuilder.append("Приглашение в фракцию - ").append(invite.getFrom().getFaction().getTitle())
                     .append("\n");
         }
-        return stringBuilder.toString();
+        result.add(stringBuilder.toString() + "\n\nДля принятия приглашения во фракцию нажмите на название соответствующей фракции:");
+        result.addAll(invites.stream().map(i -> i.getFrom().getFaction().getTitle()).toList());
+        return result;
+    }
+
+    public List<Button> titlesToButtons(List<String> titles) {
+        List<Button> buttons = new LinkedList<>();
+        titles.forEach(title -> buttons.add(Button.primary("acceptInvite:" + title, title)));
+        return buttons;
     }
 
     public InviteToFaction findInviteToFactionByFactionTitle(String title) throws DataBaseException {
@@ -81,5 +92,9 @@ public class FactionService {
 
         gameUserService.save(gameUser);
         inviteToFactionRepository.delete(inviteToFaction);
+    }
+
+    public String getFactionInfo(long id) throws DataBaseException {
+        return gameUserService.findGameUserByDiscordId(id).getFaction().toString();
     }
 }

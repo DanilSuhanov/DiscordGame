@@ -35,4 +35,11 @@ public class Faction {
     public void addMember(GameUser gameUser) {
         members.add(gameUser);
     }
+
+    @Override
+    public String toString() {
+        return title + "\n"
+                + description + "\n"
+                + "Лидер - " + leader.getName();
+    }
 }

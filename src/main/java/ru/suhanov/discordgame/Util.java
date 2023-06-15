@@ -26,4 +26,8 @@ public class Util {
     public static String getStingCount(int count) {
         return " ".repeat(count);
     }
+
+    public static String getFormatString(String str) {
+        return "```\n" + str + "```";
+    }
 }
