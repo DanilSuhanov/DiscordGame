@@ -47,8 +47,13 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
                 event.reply(e.getMessage()).queue();
             }
         } else if (event.getComponentId().contains("moveTo:")) {
-            String title = event.getComponentId().replace("moveTo:", "");
-            System.out.println(title + "MOVE_TEST");
+            try {
+                String title = event.getComponentId().replace("moveTo:", "");
+                galaxyService.moveTo(title, event.getMember().getIdLong());
+                event.reply("Вы успешно переместились в галактику " + title + "!").queue();
+            } catch (DataBaseException e) {
+                event.reply(e.getMessage()).queue();
+            }
         }
     }
 

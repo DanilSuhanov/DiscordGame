@@ -43,8 +43,7 @@ public class GalaxyService {
             }
             galaxyRepository.save(galaxy);
         }
-        else
-            throw new DataBaseException("Галактика с таким названием уже существует!");
+        else throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
     public void newGalaxy(String title, int size) throws DataBaseException {
@@ -52,8 +51,7 @@ public class GalaxyService {
 
         if (!galaxyRepository.existsByTitle(galaxy.getTitle()))
             galaxyRepository.save(galaxy);
-        else
-            throw new DataBaseException("Галактика с таким названием уже существует!");
+        else throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
     public Galaxy getRandomGalaxy() {
@@ -89,7 +87,7 @@ public class GalaxyService {
         return new MessageWithButtons(stringBuilder.toString(), buttons, MAP);
     }
 
-    public void moveTo(String galaxyTitle, Long userId) throws DataBaseException {
+    public void moveTo(String galaxyTitle, long userId) throws DataBaseException {
         Galaxy galaxy = findGalaxyByTitle(galaxyTitle);
         GameUser gameUser = gameUserService.findGameUserByDiscordId(userId);
 
@@ -98,13 +96,9 @@ public class GalaxyService {
                 gameUser.setLocation(galaxy);
                 gameUser.setOil(gameUser.getOil() - MOVING_COSTS);
                 gameUserService.save(gameUser);
-            } else {
-                throw new DataBaseException("Недостаточно топлива!");
-            }
-        } else {
-            throw new DataBaseException("Галактика " + gameUser.getLocation().getTitle()
+            } else throw new DataBaseException("Недостаточно топлива!");
+        } else throw new DataBaseException("Галактика " + gameUser.getLocation().getTitle()
                     + " не имеет переход в галактику " + galaxy.getTitle());
-        }
     }
 
     public MessageWithButtons galaxyToString(String title, long id) throws DataBaseException {
