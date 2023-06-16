@@ -19,7 +19,7 @@ import java.util.Objects;
 public class Galaxy {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String title;
@@ -29,7 +29,7 @@ public class Galaxy {
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GameUser> gameUsers = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "galaxy_neighbors",
             joinColumns = @JoinColumn(name = "galaxy_id"),
             inverseJoinColumns = @JoinColumn(name = "neighbor_id"))
@@ -46,11 +46,6 @@ public class Galaxy {
         this.size = size;
     }
 
-    public void addNeighbors(List<Galaxy> galaxies) {
-        if (galaxies.size() > 0)
-            neighbors.addAll(galaxies);
-    }
-
     public void addNeighbor(Galaxy galaxy) {
         neighbors.add(galaxy);
     }
@@ -62,12 +57,6 @@ public class Galaxy {
         stringBuilder.append("Информаци о галактике:")
                 .append("\nНазвание - ").append(title)
                 .append("\nРазмер - ").append(size);
-        if (getNeighbors().size() > 0) {
-            stringBuilder.append("\n\nСоседи:");
-            for (Galaxy galaxy : getNeighbors()) {
-                stringBuilder.append("\nНазвание - ").append(galaxy.getTitle());
-            }
-        }
         if (getGameUsers().size() > 0) {
             stringBuilder.append("\n\nИгроки:");
             for (GameUser gameUser : getGameUsers()) {

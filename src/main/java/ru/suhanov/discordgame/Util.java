@@ -28,6 +28,6 @@ public class Util {
     }
 
     public static String getFormatString(String str) {
-        return "```\n" + str + "```";
+        return "\n```\n" + str + "```";
     }
 }

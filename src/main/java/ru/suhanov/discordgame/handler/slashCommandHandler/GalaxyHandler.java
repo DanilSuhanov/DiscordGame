@@ -1,32 +1,64 @@
 package ru.suhanov.discordgame.handler.slashCommandHandler;
 
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.GameUser;
+import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.service.GalaxyService;
 import ru.suhanov.discordgame.service.GameUserService;
 
+import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class GalaxyHandler extends AbstractSlashCommandHandler {
     private final GalaxyService galaxyService;
-    private final GameUserService gameUserService;
 
     @Autowired
-    protected GalaxyHandler(GalaxyService galaxyService, GameUserService gameUserService) {
+    protected GalaxyHandler(GalaxyService galaxyService) {
         this.galaxyService = galaxyService;
-        this.gameUserService = gameUserService;
+    }
+
+    @Override
+    public void onButtonInteraction(ButtonInteractionEvent event) {
+        if (event.getComponentId().contains("galaxyInfo:")) {
+            String title = event.getComponentId().replace("galaxyInfo:", "");
+            try {
+                MessageWithButtons message = galaxyService.galaxyToString(title, event.getMember().getIdLong());
+                if (message.getButtons().size() > 0) {
+                    event.reply(message.getMessage()).addActionRow(
+                            message.getButtons()
+                    ).queue();
+                } else {
+                    event.reply(message.getMessage()).queue();
+                }
+            } catch (DataBaseException e) {
+                event.reply(e.getMessage()).queue();
+            }
+        } else if (event.getComponentId().contains("moveTo:")) {
+            String title = event.getComponentId().replace("moveTo:", "");
+            System.out.println(title + "MOVE_TEST");
+        }
     }
 
     @Override
     protected void initHandler() {
         addCommand(new Command<>("map", (event) -> {
+            MessageWithButtons message = galaxyService.getMap();
 
+            event.reply(message.getUrl() + Util.getFormatString(message.getMessage()))
+                    .addActionRow(message.getButtons()).queue();
         }));
 
 
@@ -49,30 +81,6 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
                 }
             } else {
                 event.reply("Ошибка ввода данных!").queue();
-            }
-        }));
-
-        addCommand(new Command<>("move_to", (event) -> {
-            OptionMapping galaxyName = event.getOption("galaxy");
-            if (Util.allOptionsHasValue(galaxyName)) {
-                try {
-                    GameUser gameUser = gameUserService.findGameUserByDiscordId(event.getMember().getIdLong());
-                    galaxyService.moveTo(galaxyName.getAsString(), event.getMember().getIdLong());
-                    event.reply(gameUser.getName() + " перешёл в галактику " + galaxyName.getAsString()).queue();
-                } catch (DataBaseException e) {
-                    event.reply(e.getMessage()).queue();
-                }
-            } else {
-                event.reply("Ошибка ввода данных!").queue();
-            }
-        }));
-
-        addCommand(new Command<>("galaxy_info", (event) -> {
-            try {
-                String result = galaxyService.getString(event.getMember().getIdLong());
-                event.reply(result).queue();
-            } catch (DataBaseException e) {
-                event.reply(e.getMessage()).queue();
             }
         }));
     }
