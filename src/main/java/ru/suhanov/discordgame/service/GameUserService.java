@@ -63,7 +63,12 @@ public class GameUserService {
         GameUser gameUser = findGameUserByDiscordId(userId);
         String info = gameUser.getMinersInfo();
         List<Button> buttons = new LinkedList<>();
+
+        buttons.add(Button.primary("create_oil_miner", "Создать топливный майнер"));
+        buttons.add(Button.primary("create_metal_miner", "Создать майнер метала"));
+
         buttons.add(Button.primary("workAllMiners", "Запустить все майнеры"));
+
         for (Miner miner : gameUser.getMiners()) {
             buttons.add(Button.primary("workMiner:" + miner.getTitle(), "Запустить " + miner.getTitle()));
         }

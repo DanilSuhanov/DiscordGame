@@ -1,11 +1,20 @@
 package ru.suhanov.discordgame.handler.slashCommandHandler;
 
+import jakarta.annotation.Nonnull;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
+import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.service.SpaceshipService;
 
 @Service
@@ -18,19 +27,54 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
     }
 
     @Override
-    protected void initHandler() {
-        addCommand(new Command<>("create_spaceship", (event) -> {
-            OptionMapping title = event.getOption("title");
-            if (Util.allOptionsHasValue(title)) {
+    public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
+        switch (event.getModalId()) {
+            case "createSpaceshipMod" -> {
+                String title = event.getValue("spaceshipTitle").getAsString();
                 try {
-                    spaceshipService.createSpaceship(event.getMember().getIdLong(), title.getAsString());
-                    event.reply("Корабль " + title.getAsString() + " успешно создан!").queue();
+                    spaceshipService.createSpaceship(event.getMember().getIdLong(), title);
+                    event.reply("Корабль " + title + " успешно создан!").queue();
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }
-            } else {
-                event.reply("Ошибка ввода данных!").queue();
             }
-        }));
+        }
+    }
+
+    @Override
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        if (event.getComponentId().contains("spaceshipInfo:")) {
+            String title = event.getComponentId().replace("spaceshipInfo:", "");
+            System.out.println(title);
+        }
+
+        switch (event.getComponentId()) {
+            case "military_info" -> {
+                try {
+                    MessageWithButtons message = spaceshipService.getFleetInfo(event.getMember().getIdLong());
+                    event.reply(message.getMessage()).addActionRow(message.getButtons()).queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            }
+            case "createSpaceship" -> {
+                TextInput subject = TextInput.create("spaceshipTitle", "Название корабля", TextInputStyle.SHORT)
+                        .setPlaceholder("Введите название корабля...")
+                        .setMinLength(3)
+                        .setMaxLength(30)
+                        .build();
+
+                Modal modal = Modal.create("createSpaceshipMod", "Окно создания корабля")
+                        .addComponents(ActionRow.of(subject))
+                        .build();
+
+                event.replyModal(modal).queue();
+            }
+        }
+    }
+
+    @Override
+    protected void initHandler() {
+
     }
 }

@@ -16,7 +16,9 @@ import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.MessageWithButtons;
+import ru.suhanov.discordgame.model.miner.MetalMiner;
 import ru.suhanov.discordgame.model.miner.Miner;
+import ru.suhanov.discordgame.model.miner.OilMiner;
 import ru.suhanov.discordgame.service.FactionService;
 import ru.suhanov.discordgame.service.GameUserService;
 import ru.suhanov.discordgame.service.MinerService;
@@ -59,6 +61,8 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                     event.reply(e.getMessage()).queue();
                 }
             }
+            case "createOilMinerMod" -> createMiner(new OilMiner(), event);
+            case "createMetalMinerMod" -> createMiner(new MetalMiner(), event);
         }
     }
 
@@ -127,7 +131,8 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             case "miners_info" -> {
                 try {
                     MessageWithButtons message = gameUserService.getMinersInfo(event.getMember().getIdLong());
-                    event.reply(message.getMessage()).addActionRow(message.getButtons()).queue();
+                    event.reply(Util.getFormatString(message.getMessage()))
+                            .addActionRow(message.getButtons()).queue();
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }
@@ -138,6 +143,32 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                 } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }
+            }
+            case "create_oil_miner" -> {
+                TextInput subject = TextInput.create("minerTitle", "Название топливного майнера", TextInputStyle.SHORT)
+                        .setPlaceholder("Введите название топливного майнера...")
+                        .setMinLength(3)
+                        .setMaxLength(30)
+                        .build();
+
+                Modal modal = Modal.create("createOilMinerMod", "Окно создания топлиного майнера")
+                        .addComponents(ActionRow.of(subject))
+                        .build();
+
+                event.replyModal(modal).queue();
+            }
+            case "create_metal_miner" -> {
+                TextInput subject = TextInput.create("minerTitle", "Название майнера метала", TextInputStyle.SHORT)
+                        .setPlaceholder("Введите название майнера метала...")
+                        .setMinLength(3)
+                        .setMaxLength(30)
+                        .build();
+
+                Modal modal = Modal.create("createMetalMinerMod", "Окно создания майнера метала")
+                        .addComponents(ActionRow.of(subject))
+                        .build();
+
+                event.replyModal(modal).queue();
             }
         }
     }
@@ -150,7 +181,8 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                 event.reply(Util.getFormatString(res)).addActionRow(
                         Button.primary("check_invitations", "Проверить приглашения в фракцию"),
                         Button.primary("create_faction", "Создать новую фракцию"),
-                        Button.primary("miners_info", "Информация о майнерах")
+                        Button.primary("miners_info", "Информация о майнерах"),
+                        Button.primary("military_info", "Информация о флоте")
                 ).queue();
             } catch (DataBaseException e) {
                 event.reply(e.getMessage()).queue();
@@ -183,18 +215,14 @@ public class AccountHandler extends AbstractSlashCommandHandler {
         }));
     }
 
-    private <T extends Miner> void createMiner(T miner, SlashCommandInteraction event) {
-        OptionMapping title = event.getOption("title");
-        if (Util.allOptionsHasValue(title)) {
-            try {
-                miner.setTitle(title.getAsString());
-                minerService.newMiner(event.getMember().getIdLong(), miner);
-                event.reply("Майнер " + miner.getTitle() + " создан!").queue();
-            } catch (DataBaseException e) {
-                event.reply(e.getMessage()).queue();
-            }
-        } else {
-            event.reply("Ошибка ввода данных!").queue();
+    private <T extends Miner> void createMiner(T miner, ModalInteractionEvent event) {
+        String title = event.getValue("minerTitle").getAsString();
+        try {
+            miner.setTitle(title);
+            minerService.newMiner(event.getMember().getIdLong(), miner);
+            event.reply("Майнер " + miner.getTitle() + " создан!").queue();
+        } catch (DataBaseException e) {
+            event.reply(e.getMessage()).queue();
         }
     }
 }

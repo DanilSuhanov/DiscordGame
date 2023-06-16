@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import ru.suhanov.discordgame.handler.slashCommandHandler.AccountHandler;
 import ru.suhanov.discordgame.handler.slashCommandHandler.GalaxyHandler;
 import ru.suhanov.discordgame.handler.slashCommandHandler.MilitaryHandler;
-import ru.suhanov.discordgame.handler.slashCommandHandler.MinerHandler;
 
 @Configuration
 @ComponentScan(basePackages = "ru.suhanov.discordgame")
@@ -25,14 +24,12 @@ public class MainConfig {
 
     private final AccountHandler accountHandler;
     private final GalaxyHandler galaxyHandler;
-    private final MinerHandler minerHandler;
     private final MilitaryHandler militaryHandler;
 
     @Autowired
-    public MainConfig(AccountHandler accountHandler, GalaxyHandler galaxyHandler, MinerHandler minerHandler, MilitaryHandler militaryHandler) {
+    public MainConfig(AccountHandler accountHandler, GalaxyHandler galaxyHandler, MilitaryHandler militaryHandler) {
         this.accountHandler = accountHandler;
         this.galaxyHandler = galaxyHandler;
-        this.minerHandler = minerHandler;
         this.militaryHandler = militaryHandler;
     }
 
@@ -49,7 +46,7 @@ public class MainConfig {
                         GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                         GatewayIntent.GUILD_PRESENCES,
                         GatewayIntent.GUILD_MESSAGE_REACTIONS)
-                .addEventListeners(accountHandler, galaxyHandler, minerHandler, militaryHandler)
+                .addEventListeners(accountHandler, galaxyHandler, militaryHandler)
                 .setActivity(Activity.playing("GreatSpase"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .build();
@@ -62,17 +59,6 @@ public class MainConfig {
                 Commands.slash("profile", "Get profile info"),
                 Commands.slash("registration", "Create game user")
                         .addOption(OptionType.STRING, "name", "username"),
-                Commands.slash("move_to", "Moving to another galaxy")
-                        .addOption(OptionType.STRING, "galaxy", "Destination"),
-                Commands.slash("create_oil_miner", "Create oil miner")
-                        .addOption(OptionType.STRING, "title", "Miner title"),
-                Commands.slash("create_metal_miner", "Create metal miner")
-                        .addOption(OptionType.STRING, "title", "Miner title"),
-                Commands.slash("launch_all_miners", "Launch all miners"),
-                Commands.slash("launch", "Launch one miner")
-                        .addOption(OptionType.STRING, "title", "Miner title"),
-                Commands.slash("create_spaceship", "Create spaceship")
-                        .addOption(OptionType.STRING, "title", "Spaceship title"),
                 Commands.slash("map", "Show the map"),
                 Commands.slash("faction_info", "Faction info")
         ).queue();

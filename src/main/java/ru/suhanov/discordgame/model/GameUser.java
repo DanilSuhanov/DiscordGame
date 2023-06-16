@@ -5,15 +5,16 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.suhanov.discordgame.model.invite.InviteToFaction;
 import ru.suhanov.discordgame.model.map.Galaxy;
-import ru.suhanov.discordgame.model.map.GalaxyMod;
 import ru.suhanov.discordgame.model.military.Spaceship;
 import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.ResourceType;
+import ru.suhanov.discordgame.model.mods.Mod;
+import ru.suhanov.discordgame.model.mods.UserMod;
 import ru.suhanov.discordgame.model.union.Faction;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -60,16 +61,34 @@ public class GameUser {
     @OneToOne(mappedBy = "leader")
     private Faction ownedFaction;
 
+    //Mods
+    @OneToMany
+    private List<UserMod> mods = new LinkedList<>();
+    public List<Mod> getMods() {
+        return mods.stream().map(mod -> (Mod) mod).toList();
+    }
 
-    public void addResource(int amount, ResourceType type, List<GalaxyMod> galaxyMods) {
+
+    public boolean addResource(int amount, ResourceType type, List<Mod> mods) {
         int res = amount;
-        for (GalaxyMod galaxyMod : galaxyMods) {
+        for (Mod galaxyMod : mods) {
             res = galaxyMod.result(res);
         }
         switch (type) {
-            case METAL -> metal += res;
-            case OIL -> oil += res;
+            case METAL -> {
+                if (metal + res > 0) {
+                    metal += res;
+                    return true;
+                }
+            }
+            case OIL -> {
+                if (oil + res > 0) {
+                    oil += res;
+                    return true;
+                }
+            }
         }
+        return false;
     }
 
     public GameUser(String name, Long discordId, Long money, Galaxy galaxy, int oil, int metal) {
@@ -94,14 +113,6 @@ public class GameUser {
                 .append("\nДеньги - ").append(money)
                 .append("\nТопливо - ").append(oil)
                 .append("\nМетал - ").append(metal);
-        if (spaceships.size() > 0) {
-            stringBuilder.append("\n\nКорабли: ");
-            stringBuilder.append("\nСреднее состояние кораблей - ")
-                    .append(spaceships.stream().map(Spaceship::getCondition).reduce(Integer::sum).get() / spaceships.size());
-            for (Spaceship spaceship : spaceships) {
-                stringBuilder.append("\n").append(spaceship.getTitle()).append(": состояние - ").append(spaceship.getCondition());
-            }
-        }
         return stringBuilder.toString();
     }
 
@@ -121,6 +132,23 @@ public class GameUser {
                             .append(" минут.");
                 }
             }
+        } else {
+            stringBuilder.append("Список майнеров пуст!");
+        }
+        return stringBuilder.toString();
+    }
+
+    public String getFleetInfo() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (spaceships.size() > 0) {
+            stringBuilder.append("Корабли: ");
+            stringBuilder.append("\nСреднее состояние кораблей - ")
+                    .append(spaceships.stream().map(Spaceship::getCondition).reduce(Integer::sum).get() / spaceships.size());
+            for (Spaceship spaceship : spaceships) {
+                stringBuilder.append("\n").append(spaceship.getTitle()).append(": состояние - ").append(spaceship.getCondition());
+            }
+        } else {
+            stringBuilder.append("Список кораблей пуст!");
         }
         return stringBuilder.toString();
     }

@@ -5,11 +5,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.model.GameUser;
-import ru.suhanov.discordgame.model.map.GalaxyMod;
+import ru.suhanov.discordgame.model.mods.Mod;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -38,8 +37,8 @@ public class MetalMiner extends Miner {
         if (owner.getOil() >= WORK_COST) {
             owner.addResource(-WORK_COST, ResourceType.OIL, new ArrayList<>());
             int result = Util.getRandomFromTo(OUTPUT_MIN, OUTPUT_MAX);
-            owner.addResource(result, ResourceType.METAL, getLocation().getGalaxyMods().stream().filter(mod -> mod.getType()
-                    .equals(ResourceType.All) || mod.getType().equals(ResourceType.METAL)).toList());
+            owner.addResource(result, ResourceType.METAL,
+                    Miner.getModFromMinersMods(getLocation().getGalaxyMods(), ResourceType.METAL));
             return "Метал майнер " + title + " выполнил работу. В склад было добавлено " + result + " метала.";
         } else {
             return "Недостаточно топлива для запуска метал майнера " + title;

@@ -5,7 +5,8 @@ import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import ru.suhanov.discordgame.model.map.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
-import ru.suhanov.discordgame.model.map.GalaxyMod;
+import ru.suhanov.discordgame.model.mods.GalaxyMod;
+import ru.suhanov.discordgame.model.mods.Mod;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,5 +61,11 @@ public class Miner implements Comparable<Miner> {
             return 1;
         }
         return 0;
+    }
+
+    public static List<Mod> getModFromMinersMods(List<GalaxyMod> galaxyMods, ResourceType type) {
+        return galaxyMods.stream().filter(mod -> mod.getType()
+                .equals(ResourceType.All) || mod.getType().equals(type))
+                .map(m -> (Mod) m).toList();
     }
 }

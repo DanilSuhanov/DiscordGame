@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.miner.Miner;
+import ru.suhanov.discordgame.model.mods.GalaxyMod;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
