@@ -1,14 +1,20 @@
 package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.exception.UserNotFoundException;
+import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.model.map.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
+import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.repository.GameUserRepository;
+
+import java.util.LinkedList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -29,7 +35,7 @@ public class GameUserService {
         this.galaxyService = galaxyService;
     }
 
-    public void newGameUser(String name, Long id) throws DataBaseException {
+    public void newGameUser(String name, long id) throws DataBaseException {
         Galaxy galaxy = galaxyService.getRandomGalaxy();
         GameUser gameUser = new GameUser(name, id, START_MONEY, galaxy, START_OIL, START_METAL);
 
@@ -39,7 +45,7 @@ public class GameUserService {
             throw new DataBaseException("Создаваемый пользователь уже существует!");
     }
 
-    public GameUser findGameUserByDiscordId(Long discordId) throws DataBaseException {
+    public GameUser findGameUserByDiscordId(long discordId) throws DataBaseException {
         return gameUserRepository.findGameUserByDiscordId(discordId)
                 .orElseThrow(UserNotFoundException::new);
     }
@@ -49,8 +55,19 @@ public class GameUserService {
                 .orElseThrow(UserNotFoundException::new);
     }
 
-    public String getString(Long userId) throws DataBaseException {
+    public String getString(long userId) throws DataBaseException {
         return findGameUserByDiscordId(userId).toString();
+    }
+
+    public MessageWithButtons getMinersInfo(long userId) throws DataBaseException {
+        GameUser gameUser = findGameUserByDiscordId(userId);
+        String info = gameUser.getMinersInfo();
+        List<Button> buttons = new LinkedList<>();
+        buttons.add(Button.primary("workAllMiners", "Запустить все майнеры"));
+        for (Miner miner : gameUser.getMiners()) {
+            buttons.add(Button.primary("workMiner:" + miner.getTitle(), "Запустить " + miner.getTitle()));
+        }
+        return new MessageWithButtons(info, buttons);
     }
 
     public void save(GameUser gameUser) {

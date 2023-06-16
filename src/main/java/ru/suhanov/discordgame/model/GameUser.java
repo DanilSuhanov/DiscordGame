@@ -11,6 +11,9 @@ import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.ResourceType;
 import ru.suhanov.discordgame.model.union.Faction;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,22 +90,36 @@ public class GameUser {
         } else if (ownedFaction != null) {
             stringBuilder.append("\nФракция - ").append(ownedFaction.getTitle());
         }
-        stringBuilder.append("\nДеньги - ").append(money)
+        stringBuilder.append("\nТекущая галактика - ").append(location.getTitle())
+                .append("\nДеньги - ").append(money)
                 .append("\nТопливо - ").append(oil)
-                .append("\nМетал - ").append(metal)
-                .append("\nТекущая галактика - ").append(location.getTitle());
-        if (miners.size() > 0) {
-            stringBuilder.append("\n\nМайнеры: ");
-            for (Miner miner : miners) {
-                stringBuilder.append("\n").append(miner.getTitle()).append(" - ").append(miner.getType().toString());
-            }
-        }
+                .append("\nМетал - ").append(metal);
         if (spaceships.size() > 0) {
             stringBuilder.append("\n\nКорабли: ");
             stringBuilder.append("\nСреднее состояние кораблей - ")
                     .append(spaceships.stream().map(Spaceship::getCondition).reduce(Integer::sum).get() / spaceships.size());
             for (Spaceship spaceship : spaceships) {
                 stringBuilder.append("\n").append(spaceship.getTitle()).append(": состояние - ").append(spaceship.getCondition());
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    public String getMinersInfo() {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (miners.size() > 0) {
+            stringBuilder.append("Майнеры: ");
+            for (Miner miner : miners) {
+                stringBuilder.append("\n").append(miner.getTitle())
+                        .append(" - ").append(miner.getType().toString())
+                        .append(" - ");
+                if (miner.readyToWork()) {
+                    stringBuilder.append("Готов к работе!");
+                } else {
+                    stringBuilder.append("Не готов к работе, осталось - ")
+                            .append(miner.getReloadTime() * 60L - Duration.between(miner.getLastWorkTime(), LocalDateTime.now()).getSeconds()/60)
+                            .append(" минут.");
+                }
             }
         }
         return stringBuilder.toString();

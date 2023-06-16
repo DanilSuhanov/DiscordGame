@@ -20,7 +20,7 @@ public class OilMiner extends Miner{
     public static final int COST = 10;
     public OilMiner() {
         type = ResourceType.OIL;
-        lastWorkTime = LocalDateTime.now().minusHours(1);
+        lastWorkTime = LocalDateTime.now().minusHours(getReloadTime());
     }
 
     @Override
@@ -33,9 +33,9 @@ public class OilMiner extends Miner{
     }
 
     @Override
-    protected String work(List<GalaxyMod> galaxyMods) {
+    public String work() {
         int result = Util.getRandomFromTo(OUTPUT_MIN, OUTPUT_MAX);
-        owner.addResource(result, ResourceType.OIL, galaxyMods.stream()
+        owner.addResource(result, ResourceType.OIL, getLocation().getGalaxyMods().stream()
                 .filter(mod -> mod.getType().equals(ResourceType.All) || mod.getType().equals(ResourceType.OIL))
                 .toList());
         return "Топливный майнер " + title + " выполнил работу. В склад было добавлено " + result + " топлива.";

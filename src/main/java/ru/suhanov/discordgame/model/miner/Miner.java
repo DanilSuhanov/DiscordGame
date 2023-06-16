@@ -24,6 +24,7 @@ public class Miner implements Comparable<Miner> {
     protected String title = "NotSet";
 
     protected LocalDateTime lastWorkTime;
+    private int reloadTime = 1;
 
     public boolean pay(GameUser gameUser) {
         return true;
@@ -35,20 +36,20 @@ public class Miner implements Comparable<Miner> {
     @ManyToOne
     protected Galaxy location;
 
-    protected String work(List<GalaxyMod> galaxyMods) {
+    protected String work() {
         return "Ошибка определение типа!";
     }
 
-    public String start(List<GalaxyMod> galaxyMods) {
+    public String start() {
         if (!readyToWork())
             return "Майнер " + title + " ещё не готов к работе!";
-        String res = work(galaxyMods);
+        String res = work();
         lastWorkTime = LocalDateTime.now();
         return res;
     }
 
-    protected boolean readyToWork() {
-        return lastWorkTime.plusHours(1).isBefore(LocalDateTime.now());
+    public boolean readyToWork() {
+        return lastWorkTime.plusHours(reloadTime).isBefore(LocalDateTime.now());
     }
 
     @Override

@@ -21,7 +21,7 @@ public class MetalMiner extends Miner {
     public static final int COST = 20;
     public MetalMiner() {
         type = ResourceType.METAL;
-        lastWorkTime = LocalDateTime.now().minusHours(1);
+        lastWorkTime = LocalDateTime.now().minusHours(getReloadTime());
     }
 
     @Override
@@ -34,11 +34,11 @@ public class MetalMiner extends Miner {
     }
 
     @Override
-    protected String work(List<GalaxyMod> galaxyMods) {
+    protected String work() {
         if (owner.getOil() >= WORK_COST) {
             owner.addResource(-WORK_COST, ResourceType.OIL, new ArrayList<>());
             int result = Util.getRandomFromTo(OUTPUT_MIN, OUTPUT_MAX);
-            owner.addResource(result, ResourceType.METAL, galaxyMods.stream().filter(mod -> mod.getType()
+            owner.addResource(result, ResourceType.METAL, getLocation().getGalaxyMods().stream().filter(mod -> mod.getType()
                     .equals(ResourceType.All) || mod.getType().equals(ResourceType.METAL)).toList());
             return "Метал майнер " + title + " выполнил работу. В склад было добавлено " + result + " метала.";
         } else {

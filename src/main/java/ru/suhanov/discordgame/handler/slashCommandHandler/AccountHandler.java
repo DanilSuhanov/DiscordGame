@@ -4,6 +4,7 @@ import jakarta.annotation.Nonnull;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
@@ -14,11 +15,11 @@ import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
-import ru.suhanov.discordgame.model.GameUser;
-import ru.suhanov.discordgame.model.union.Faction;
+import ru.suhanov.discordgame.model.MessageWithButtons;
+import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.service.FactionService;
-import ru.suhanov.discordgame.service.GalaxyService;
 import ru.suhanov.discordgame.service.GameUserService;
+import ru.suhanov.discordgame.service.MinerService;
 
 import java.util.List;
 
@@ -26,11 +27,13 @@ import java.util.List;
 public class AccountHandler extends AbstractSlashCommandHandler {
     private final GameUserService gameUserService;
     private final FactionService factionService;
+    private final MinerService minerService;
 
     @Autowired
-    public AccountHandler(GameUserService gameUserService, FactionService factionService) {
+    public AccountHandler(GameUserService gameUserService, FactionService factionService, MinerService minerService) {
         this.gameUserService = gameUserService;
         this.factionService = factionService;
+        this.minerService = minerService;
     }
 
     @Override
@@ -66,6 +69,13 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             try {
                 factionService.acceptInvitation(title, event.getMember().getIdLong());
                 event.reply("Приглашение во фракцию " + title + " принято!").queue();
+            } catch (DataBaseException e) {
+                event.reply(e.getMessage()).queue();
+            }
+        } else if (event.getComponentId().contains("workMiner:")) {
+            try {
+                String title = event.getComponentId().replace("workMiner:", "");
+                event.reply(minerService.workMiner(event.getMember().getIdLong(), title)).queue();
             } catch (DataBaseException e) {
                 event.reply(e.getMessage()).queue();
             }
@@ -114,6 +124,21 @@ public class AccountHandler extends AbstractSlashCommandHandler {
 
                 event.replyModal(modal).queue();
             }
+            case "miners_info" -> {
+                try {
+                    MessageWithButtons message = gameUserService.getMinersInfo(event.getMember().getIdLong());
+                    event.reply(message.getMessage()).addActionRow(message.getButtons()).queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            }
+            case "workAllMiners" -> {
+                try {
+                    event.reply(minerService.workAll(event.getMember().getIdLong())).queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            }
         }
     }
 
@@ -124,7 +149,8 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                 String res = gameUserService.getString(event.getMember().getIdLong());
                 event.reply(Util.getFormatString(res)).addActionRow(
                         Button.primary("check_invitations", "Проверить приглашения в фракцию"),
-                        Button.primary("create_faction", "Создать новую фракцию")
+                        Button.primary("create_faction", "Создать новую фракцию"),
+                        Button.primary("miners_info", "Информация о майнерах")
                 ).queue();
             } catch (DataBaseException e) {
                 event.reply(e.getMessage()).queue();
@@ -155,5 +181,20 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                 event.reply(e.getMessage()).queue();
             }
         }));
+    }
+
+    private <T extends Miner> void createMiner(T miner, SlashCommandInteraction event) {
+        OptionMapping title = event.getOption("title");
+        if (Util.allOptionsHasValue(title)) {
+            try {
+                miner.setTitle(title.getAsString());
+                minerService.newMiner(event.getMember().getIdLong(), miner);
+                event.reply("Майнер " + miner.getTitle() + " создан!").queue();
+            } catch (DataBaseException e) {
+                event.reply(e.getMessage()).queue();
+            }
+        } else {
+            event.reply("Ошибка ввода данных!").queue();
+        }
     }
 }
