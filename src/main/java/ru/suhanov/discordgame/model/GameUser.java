@@ -145,7 +145,9 @@ public class GameUser {
             stringBuilder.append("\nСреднее состояние кораблей - ")
                     .append(spaceships.stream().map(Spaceship::getCondition).reduce(Integer::sum).get() / spaceships.size());
             for (Spaceship spaceship : spaceships) {
-                stringBuilder.append("\n").append(spaceship.getTitle()).append(": состояние - ").append(spaceship.getCondition());
+                stringBuilder.append("\n").append(spaceship.getTitle())
+                        .append(": тип - ").append(spaceship.getFleetType().toString())
+                        .append(" состояние - ").append(spaceship.getCondition());
             }
         } else {
             stringBuilder.append("Список кораблей пуст!");

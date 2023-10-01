@@ -75,6 +75,11 @@ public class GameUserService {
         return new MessageWithButtons(info, buttons);
     }
 
+    public int getCountOfFleet(long userId) throws UserNotFoundException {
+        return gameUserRepository.findGameUserByDiscordId(userId)
+                .orElseThrow(UserNotFoundException::new).getSpaceships().size();
+    }
+
     public void save(GameUser gameUser) {
         gameUserRepository.save(gameUser);
     }
