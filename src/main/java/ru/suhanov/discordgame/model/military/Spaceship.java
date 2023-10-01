@@ -20,8 +20,12 @@ public class Spaceship {
     private Long id;
 
     private String title;
+    private FleetType fleetType;
 
     private int condition = 100;
+
+    //Cost
+    private ResourceType resourceType;
     private int cost;
 
     //Service
@@ -30,15 +34,6 @@ public class Spaceship {
 
     @ManyToOne
     private GameUser owner;
-
-    public boolean buy(GameUser gameUser) {
-        if (gameUser.getMetal() >= cost) {
-            gameUser.setMetal(gameUser.getMetal() - cost);
-            owner = gameUser;
-            return true;
-        }
-        return false;
-    }
 
     public boolean service(List<Mod> mods) {
         return owner.addResource(serviceCost, serviceCostType, mods);

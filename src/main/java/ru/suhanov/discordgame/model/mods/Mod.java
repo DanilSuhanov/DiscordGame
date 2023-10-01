@@ -2,6 +2,7 @@ package ru.suhanov.discordgame.model.mods;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import ru.suhanov.discordgame.model.OperationTag;
 import ru.suhanov.discordgame.model.miner.ResourceType;
 
 import java.util.Objects;
@@ -17,6 +18,8 @@ public class Mod {
     private ResourceType type;
 
     private int percent;
+
+    private OperationTag tag;
 
     public int result(int resource) {
         return resource * percent;

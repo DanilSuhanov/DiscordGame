@@ -1,8 +1,6 @@
 package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.channel.unions.ChannelUnion;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -11,7 +9,10 @@ import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.MessageWithButtons;
+import ru.suhanov.discordgame.model.OperationTag;
+import ru.suhanov.discordgame.model.military.FleetType;
 import ru.suhanov.discordgame.model.military.Spaceship;
+import ru.suhanov.discordgame.model.mods.Mod;
 import ru.suhanov.discordgame.repository.SpaceshipRepository;
 
 import java.util.LinkedList;
@@ -36,11 +37,18 @@ public class SpaceshipService {
         else throw new DataBaseException("Корабль с таким именем уже существует!");
     }
 
-    public void createSpaceship(long userId, String title) throws DataBaseException {
+    public void createSpaceship(long userId, String title, FleetType fleetType) throws DataBaseException {
         GameUser gameUser = gameUserService.findGameUserByDiscordId(userId);
         Spaceship spaceship = new Spaceship();
-        if (spaceship.buy(gameUser)) {
+        List<Mod> createFleetMods = gameUser.getMods().stream()
+                .filter(mod -> mod.getTag().equals(OperationTag.FLEET_CREATING)).toList();
+
+        if (gameUser.addResource(spaceship.getCost() * -1, spaceship.getResourceType(),
+                createFleetMods)) {
+
+            spaceship.setOwner(gameUser);
             spaceship.setTitle(title);
+
             newSpaceship(spaceship);
             gameUserService.save(gameUser);
         } else {
