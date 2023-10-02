@@ -1,5 +1,6 @@
 package ru.suhanov.discordgame.model;
 
 public enum OperationTag {
-    FLEET_CREATING
+    FLEET_CREATING,
+    SERVICE_FLEET
 }

@@ -88,12 +88,9 @@ public class SpaceshipService {
         return message;
     }
 
-    @Scheduled(fixedDelay = 60000L)
-    public void serviceFleet() {
-        spaceshipRepository.findAll().forEach(ship -> {
-            if (!ship.service(ship.getOwner().getMods())) {
-                spaceshipRepository.delete(ship);
-            }
-        });
+    public void serviceAllFleet(long userID) throws DataBaseException {
+        GameUser gameUser = gameUserService.findGameUserByDiscordId(userID);
+        gameUser.getSpaceships().forEach(ship -> ship.service(gameUser.getMods()
+                .stream().filter(mod -> mod.getTag().equals(OperationTag.SERVICE_FLEET)).toList()));
     }
 }
