@@ -62,7 +62,10 @@ public class MainConfig {
                         .addOption(OptionType.STRING, "name", "username"),
                 Commands.slash("map", "Show the map"),
                 Commands.slash("faction_info", "Faction info"),
-                Commands.slash("create_new_modifier", "Create new modifier")
+                Commands.slash("modifier_info", "Modifier info"),
+                Commands.slash("create_new_modifier", "Create new modifier"),
+                Commands.slash("add_modifier_to_user", "Add modifier to user"),
+                Commands.slash("add_modifier_to_galaxy", "Add modifier to galaxy")
         ).queue();
 
         return jda;

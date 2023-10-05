@@ -79,6 +79,18 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                     event.reply(runtimeException.getMessage()).queue();
                 }
             }
+            case "add_modifier_to_user" -> {
+                String modTitle = event.getValue("modTitle").getAsString();
+                String userName = event.getValue("userName").getAsString();
+
+                try {
+                    modService.addModForUser(modTitle, userName);
+                    event.reply("Модификатор " + modTitle
+                            + " добавлен для пользователя " + userName).queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            }
         }
     }
 
@@ -253,6 +265,28 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                             ActionRow.of(resourceType),
                             ActionRow.of(percent),
                             ActionRow.of(title))
+                    .build();
+
+            event.replyModal(modal).queue();
+        }));
+
+        addCommand(new Command<>("modifier_info", event -> {
+
+        }));
+
+        addCommand(new Command<>("add_modifier_to_user", event -> {
+            TextInput modTitle = TextInput.create("modTitle", "Название модификатора", TextInputStyle.SHORT)
+                    .setPlaceholder("Введите название модификатора...")
+                    .build();
+
+            TextInput userName = TextInput.create("userName", "Имя пользователя", TextInputStyle.SHORT)
+                    .setPlaceholder("Введите имя пользователя...")
+                    .build();
+
+            Modal modal = Modal.create("addModifierToUser", "Окно добавления модификатора для пользователя")
+                    .addComponents(
+                            ActionRow.of(modTitle),
+                            ActionRow.of(userName))
                     .build();
 
             event.replyModal(modal).queue();

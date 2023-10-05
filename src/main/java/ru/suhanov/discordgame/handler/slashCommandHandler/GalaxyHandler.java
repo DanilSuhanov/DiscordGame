@@ -1,5 +1,8 @@
 package ru.suhanov.discordgame.handler.slashCommandHandler;
 
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -16,18 +19,34 @@ import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.service.GalaxyService;
 import ru.suhanov.discordgame.service.GameUserService;
+import ru.suhanov.discordgame.service.ModService;
 
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class GalaxyHandler extends AbstractSlashCommandHandler {
     private final GalaxyService galaxyService;
+    private final ModService modService;
 
-    @Autowired
-    protected GalaxyHandler(GalaxyService galaxyService) {
-        this.galaxyService = galaxyService;
+    @Override
+    public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
+        switch (event.getModalId()) {
+            case "addModifierToGalaxy" -> {
+                String modTitle = event.getValue("modTitle").getAsString();
+                String galaxyTitle = event.getValue("galaxyTitle").getAsString();
+
+                try {
+                    modService.addModForGalaxy(modTitle, galaxyTitle);
+                    event.reply("Модификатор " + modTitle
+                            + " успешно добавлен в галлактику " + galaxyTitle).queue();
+                } catch (DataBaseException e) {
+                    event.reply(e.getMessage()).queue();
+                }
+            }
+        }
     }
 
     @Override
@@ -36,7 +55,7 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
             String title = event.getComponentId().replace("galaxyInfo:", "");
             try {
                 MessageWithButtons message = galaxyService.galaxyToString(title, event.getMember().getIdLong());
-                if (message.getButtons().size() > 0) {
+                if (!message.getButtons().isEmpty()) {
                     event.reply(message.getMessage()).addActionRow(
                             message.getButtons()
                     ).queue();
@@ -90,7 +109,21 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
         }));
 
         addCommand(new Command<>("add_modifier_to_galaxy", event -> {
+            TextInput modTitle = TextInput.create("modTitle", "Название модификатора", TextInputStyle.SHORT)
+                    .setPlaceholder("Введите название модификатора...")
+                    .build();
 
+            TextInput galaxyTitle = TextInput.create("galaxyTitle", "Название галактики", TextInputStyle.SHORT)
+                    .setPlaceholder("Введите название галактики...")
+                    .build();
+
+            Modal modal = Modal.create("addModifierToGalaxy", "Окно добавления модификатора для галактики")
+                    .addComponents(
+                            ActionRow.of(modTitle),
+                            ActionRow.of(galaxyTitle))
+                    .build();
+
+            event.replyModal(modal).queue();
         }));
     }
 }
