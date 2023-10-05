@@ -1,6 +1,7 @@
 package ru.suhanov.discordgame.handler.slashCommandHandler;
 
 import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -16,27 +17,26 @@ import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.MessageWithButtons;
+import ru.suhanov.discordgame.model.OperationTag;
 import ru.suhanov.discordgame.model.miner.MetalMiner;
 import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.OilMiner;
+import ru.suhanov.discordgame.model.miner.ResourceType;
+import ru.suhanov.discordgame.model.mods.UserMod;
 import ru.suhanov.discordgame.service.FactionService;
 import ru.suhanov.discordgame.service.GameUserService;
 import ru.suhanov.discordgame.service.MinerService;
+import ru.suhanov.discordgame.service.ModService;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AccountHandler extends AbstractSlashCommandHandler {
     private final GameUserService gameUserService;
     private final FactionService factionService;
     private final MinerService minerService;
-
-    @Autowired
-    public AccountHandler(GameUserService gameUserService, FactionService factionService, MinerService minerService) {
-        this.gameUserService = gameUserService;
-        this.factionService = factionService;
-        this.minerService = minerService;
-    }
+    private final ModService modService;
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
@@ -63,6 +63,22 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             }
             case "createOilMinerMod" -> createMiner(new OilMiner(), event);
             case "createMetalMinerMod" -> createMiner(new MetalMiner(), event);
+            case "createModifierMod" -> {
+                String modifierResourceType = event.getValue("modifierResourceType").getAsString();
+                String modifierPercent = event.getValue("modifierPercent").getAsString();
+                String modifierOperationType = event.getValue("modifierOperationType").getAsString();
+                String modifierTitle = event.getValue("modifierTitle").getAsString();
+
+                try {
+                    modService.createMod(ResourceType.valueOf(modifierResourceType),
+                            Integer.parseInt(modifierPercent),
+                            OperationTag.valueOf(modifierOperationType),
+                            modifierTitle);
+                    event.reply("Модификатор успешно создан!").queue();
+                } catch (Exception runtimeException) {
+                    event.reply(runtimeException.getMessage()).queue();
+                }
+            }
         }
     }
 
@@ -212,6 +228,34 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             } catch (DataBaseException e) {
                 event.reply(e.getMessage()).queue();
             }
+        }));
+
+        addCommand(new Command<>("create_new_modifier", event -> {
+            TextInput operationType = TextInput.create("modifierOperationType", "Тип операции", TextInputStyle.SHORT)
+                    .setPlaceholder("FLEET_CREATING/SERVICE_FLEET/any")
+                    .build();
+
+            TextInput resourceType = TextInput.create("modifierResourceType", "Тип ресурса модификатора", TextInputStyle.SHORT)
+                    .setPlaceholder("METAL/OIL/ALL")
+                    .build();
+
+            TextInput percent = TextInput.create("modifierPercent", "Процент модификатора", TextInputStyle.SHORT)
+                    .setPlaceholder("0-100")
+                    .build();
+
+            TextInput title = TextInput.create("modifierTitle", "Название модификатора", TextInputStyle.SHORT)
+                    .setPlaceholder("Введите название...")
+                    .build();
+
+            Modal modal = Modal.create("createModifierMod", "Окно создание модификатора")
+                    .addComponents(
+                            ActionRow.of(operationType),
+                            ActionRow.of(resourceType),
+                            ActionRow.of(percent),
+                            ActionRow.of(title))
+                    .build();
+
+            event.replyModal(modal).queue();
         }));
     }
 

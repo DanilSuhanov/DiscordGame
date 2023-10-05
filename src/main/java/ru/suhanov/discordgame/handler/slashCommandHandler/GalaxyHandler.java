@@ -59,7 +59,7 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
 
     @Override
     protected void initHandler() {
-        addCommand(new Command<>("map", (event) -> {
+        addCommand(new Command<>("map", event -> {
             MessageWithButtons message = galaxyService.getMap();
 
             event.reply(message.getUrl() + Util.getFormatString(message.getMessage()))
@@ -67,7 +67,7 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
         }));
 
 
-        addCommand(new Command<>("create_galaxy", (event) -> {
+        addCommand(new Command<>("create_galaxy", event -> {
             OptionMapping title = event.getOption("title");
             OptionMapping size = event.getOption("size");
             OptionMapping neighbors = event.getOption("neighbors");
@@ -87,6 +87,10 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
             } else {
                 event.reply("Ошибка ввода данных!").queue();
             }
+        }));
+
+        addCommand(new Command<>("add_modifier_to_galaxy", event -> {
+
         }));
     }
 }

@@ -61,7 +61,8 @@ public class MainConfig {
                 Commands.slash("registration", "Create game user")
                         .addOption(OptionType.STRING, "name", "username"),
                 Commands.slash("map", "Show the map"),
-                Commands.slash("faction_info", "Faction info")
+                Commands.slash("faction_info", "Faction info"),
+                Commands.slash("create_new_modifier", "Create new modifier")
         ).queue();
 
         return jda;
