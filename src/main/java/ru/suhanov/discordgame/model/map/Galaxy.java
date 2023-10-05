@@ -57,13 +57,38 @@ public class Galaxy {
         stringBuilder.append("Информаци о галактике:")
                 .append("\nНазвание - ").append(title)
                 .append("\nРазмер - ").append(size);
-        if (getGameUsers().size() > 0) {
+        getGalaxyInfo(stringBuilder);
+
+        return stringBuilder.toString();
+    }
+
+    private void getGalaxyInfo(StringBuilder stringBuilder) {
+        getGameUsersInfo(stringBuilder);
+        getMinersInfo(stringBuilder);
+        getModsInfo(stringBuilder);
+    }
+
+    private void getModsInfo(StringBuilder stringBuilder) {
+        if (!getGalaxyMods().isEmpty()) {
+            stringBuilder.append("\n\nМодификаторы: ");
+            for (GalaxyMod galaxyMod : galaxyMods) {
+                stringBuilder.append("\nТэг - ").append(galaxyMod.getTag())
+                        .append(", процент - ").append(galaxyMod.getPercent());
+            }
+        }
+    }
+
+    private void getGameUsersInfo(StringBuilder stringBuilder) {
+        if (!getGameUsers().isEmpty()) {
             stringBuilder.append("\n\nИгроки:");
             for (GameUser gameUser : getGameUsers()) {
                 stringBuilder.append("\nНикнейм - ").append(gameUser.getName());
             }
         }
-        if (getMiners().size() > 0) {
+    }
+
+    private void getMinersInfo(StringBuilder stringBuilder) {
+        if (!getMiners().isEmpty()) {
             stringBuilder.append("\n\nМайнеры:");
             int count = 1;
             for (Miner miner : getMiners()) {
@@ -74,7 +99,6 @@ public class Galaxy {
                 count++;
             }
         }
-        return stringBuilder.toString();
     }
 
     @Override
