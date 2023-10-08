@@ -17,6 +17,7 @@ import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.MessageWithButtons;
+import ru.suhanov.discordgame.model.MessageWithItems;
 import ru.suhanov.discordgame.model.OperationTag;
 import ru.suhanov.discordgame.model.miner.MetalMiner;
 import ru.suhanov.discordgame.model.miner.Miner;
@@ -114,6 +115,50 @@ public class AccountHandler extends AbstractSlashCommandHandler {
         }
 
         switch (event.getComponentId()) {
+            case "createModifier" -> {
+                TextInput operationType = TextInput.create("modifierOperationType", "Тип операции", TextInputStyle.SHORT)
+                        .setPlaceholder("FLEET_CREATING/SERVICE_FLEET/any")
+                        .build();
+
+                TextInput resourceType = TextInput.create("modifierResourceType", "Тип ресурса модификатора", TextInputStyle.SHORT)
+                        .setPlaceholder("METAL/OIL/ALL")
+                        .build();
+
+                TextInput percent = TextInput.create("modifierPercent", "Процент модификатора", TextInputStyle.SHORT)
+                        .setPlaceholder("0-100")
+                        .build();
+
+                TextInput title = TextInput.create("modifierTitle", "Название модификатора", TextInputStyle.SHORT)
+                        .setPlaceholder("Введите название...")
+                        .build();
+
+                Modal modal = Modal.create("createModifierMod", "Окно создание модификатора")
+                        .addComponents(
+                                ActionRow.of(operationType),
+                                ActionRow.of(resourceType),
+                                ActionRow.of(percent),
+                                ActionRow.of(title))
+                        .build();
+
+                event.replyModal(modal).queue();
+            }
+            case "addModifierToUser" -> {
+                TextInput modTitle = TextInput.create("modTitle", "Название модификатора", TextInputStyle.SHORT)
+                        .setPlaceholder("Введите название модификатора...")
+                        .build();
+
+                TextInput userName = TextInput.create("userName", "Имя пользователя", TextInputStyle.SHORT)
+                        .setPlaceholder("Введите имя пользователя...")
+                        .build();
+
+                Modal modal = Modal.create("addModifierToUser", "Окно добавления модификатора для пользователя")
+                        .addComponents(
+                                ActionRow.of(modTitle),
+                                ActionRow.of(userName))
+                        .build();
+
+                event.replyModal(modal).queue();
+            }
             case "check_invitations" -> {
                 try {
                     List<String> res = factionService.getInvites(event.getMember().getIdLong());
@@ -242,54 +287,11 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             }
         }));
 
-        addCommand(new Command<>("create_new_modifier", event -> {
-            TextInput operationType = TextInput.create("modifierOperationType", "Тип операции", TextInputStyle.SHORT)
-                    .setPlaceholder("FLEET_CREATING/SERVICE_FLEET/any")
-                    .build();
-
-            TextInput resourceType = TextInput.create("modifierResourceType", "Тип ресурса модификатора", TextInputStyle.SHORT)
-                    .setPlaceholder("METAL/OIL/ALL")
-                    .build();
-
-            TextInput percent = TextInput.create("modifierPercent", "Процент модификатора", TextInputStyle.SHORT)
-                    .setPlaceholder("0-100")
-                    .build();
-
-            TextInput title = TextInput.create("modifierTitle", "Название модификатора", TextInputStyle.SHORT)
-                    .setPlaceholder("Введите название...")
-                    .build();
-
-            Modal modal = Modal.create("createModifierMod", "Окно создание модификатора")
-                    .addComponents(
-                            ActionRow.of(operationType),
-                            ActionRow.of(resourceType),
-                            ActionRow.of(percent),
-                            ActionRow.of(title))
-                    .build();
-
-            event.replyModal(modal).queue();
-        }));
-
         addCommand(new Command<>("modifier_info", event -> {
-
-        }));
-
-        addCommand(new Command<>("add_modifier_to_user", event -> {
-            TextInput modTitle = TextInput.create("modTitle", "Название модификатора", TextInputStyle.SHORT)
-                    .setPlaceholder("Введите название модификатора...")
-                    .build();
-
-            TextInput userName = TextInput.create("userName", "Имя пользователя", TextInputStyle.SHORT)
-                    .setPlaceholder("Введите имя пользователя...")
-                    .build();
-
-            Modal modal = Modal.create("addModifierToUser", "Окно добавления модификатора для пользователя")
-                    .addComponents(
-                            ActionRow.of(modTitle),
-                            ActionRow.of(userName))
-                    .build();
-
-            event.replyModal(modal).queue();
+            MessageWithItems messageWithItems = modService.getModsInfo();
+            event.reply(messageWithItems.getMessage())
+                    .addActionRow(messageWithItems.getButtons())
+                    .queue();
         }));
     }
 

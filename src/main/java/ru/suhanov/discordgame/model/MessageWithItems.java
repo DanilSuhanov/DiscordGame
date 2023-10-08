@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,11 +14,15 @@ import java.util.List;
 public class MessageWithItems {
     private String message;
     private String url;
-    private List<Button> buttons = new LinkedList<>();
+    private List<Button> buttons = new ArrayList<>();
     private SelectMenu selectMenu;
 
     public void addButton(Button button) {
         buttons.add(button);
+    }
+
+    public void addButtons(List<Button> buttons) {
+        this.buttons.addAll(buttons);
     }
 
     public MessageWithItems(String message) {

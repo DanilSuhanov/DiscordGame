@@ -2,6 +2,7 @@ package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.GameUser;
@@ -14,7 +15,10 @@ import ru.suhanov.discordgame.model.mods.Mod;
 import ru.suhanov.discordgame.model.mods.UserMod;
 import ru.suhanov.discordgame.repository.ModRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static ru.suhanov.discordgame.Util.listToStringList;
 
 @Service
 @Transactional
@@ -24,9 +28,25 @@ public class ModService {
     private final GalaxyService galaxyService;
     private final GameUserService gameUserService;
 
-    public String getModsInfo() {
+    public MessageWithItems getModsInfo() {
+        MessageWithItems messageWithItems = new MessageWithItems();
         List<Mod> mods = modRepository.findAll();
-        return null;//TODO
+
+        messageWithItems.setMessage(listToStringList("Модификаторы", mods).toString());
+        messageWithItems.addButton(Button.primary("createModifier",
+                "Создать новый модификатор"));
+        messageWithItems.addButton(Button.primary("addModifierToUser",
+                "Добавить модификатор для пользователя"));
+        messageWithItems.addButton(Button.primary("addModifierToGalaxy",
+                "Добавить модификартор для галактики"));
+
+        List<Button> modButtons = new ArrayList<>();
+        for (Mod mod : mods) {
+            modButtons.add(Button.primary("MOD_INFO" + mod.getTitle(), mod.getTitle()));
+        }
+        messageWithItems.addButtons(modButtons);
+
+        return messageWithItems;
     }
 
     public void createMod(ResourceType resourceType, int percent, OperationTag operationTag, String title) {

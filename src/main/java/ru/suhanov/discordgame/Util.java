@@ -2,6 +2,7 @@ package ru.suhanov.discordgame;
 
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
+import java.util.List;
 import java.util.Random;
 
 public class Util {
@@ -13,6 +14,20 @@ public class Util {
                 return false;
         }
         return true;
+    }
+
+    public static StringBuilder listToStringList(String title, List<?> data) {
+        if (data.isEmpty())
+            return new StringBuilder("Список пуст!");
+        StringBuilder stringBuilder = new StringBuilder().append(title);
+        data.forEach(o -> stringBuilder.append("\n").append(o.toString()));
+        return stringBuilder;
+    }
+
+    public static StringBuilder listToStringList(String title, List<?> data, StringBuilder stringBuilder) {
+        stringBuilder.append(title);
+        data.forEach(o -> stringBuilder.append("\n").append(o.toString()));
+        return stringBuilder;
     }
 
     public static int getRandomFromTo(int from, int to) {

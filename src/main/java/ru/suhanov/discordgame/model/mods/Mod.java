@@ -38,7 +38,10 @@ public class Mod {
 
     @Override
     public String toString() {
-        return "Модификатор - "; //TODO
+        return "Модификатор - " + title
+                + "\nТип ресурса - " + type.name()
+                + "\nТэг операции - " + tag.name()
+                + "\nПроцент - " + percent;
     }
 
     @Override
