@@ -2,10 +2,10 @@ package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.model.GameUser;
@@ -16,8 +16,12 @@ import ru.suhanov.discordgame.model.military.Spaceship;
 import ru.suhanov.discordgame.model.mods.Mod;
 import ru.suhanov.discordgame.repository.SpaceshipRepository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import static ru.suhanov.discordgame.Util.getPoint;
 
 @Service
 @EnableScheduling
@@ -72,13 +76,12 @@ public class SpaceshipService {
         List<Button> buttons = new LinkedList<>();
         MessageWithItems message = new MessageWithItems();
 
-        message.setSelectMenu(StringSelectMenu.create("spaceshipType")
-                .addOption("Создать маленький корабль", "CREATE_FLEET_SMALL")
-                .addOption("Создать средний корабль", "CREATE_FLEET_MEDIUM")
-                .addOption("Создать большой корабль", "CREATE_FLEET_LARGE")
-                .build());
+        message.setSelectMenu(
+                StringSelectMenu.create("spaceshipType")
+                        .addOptions(getFleetCreatingOptions())
+                        .build());
 
-        buttons.add(Button.primary("createSpaceship", "Создать корабль"));
+        buttons.add(Button.primary("getTypeInfo", "Информация о типах кораблей"));
         for (Spaceship spaceship : gameUser.getSpaceships()) {
             buttons.add(Button.primary("spaceshipInfo:" + spaceship.getTitle(), spaceship.getTitle()));
         }
@@ -86,6 +89,26 @@ public class SpaceshipService {
         message.setButtons(buttons);
         message.setMessage(gameUser.getFleetInfo());
         return message;
+    }
+
+    public List<SelectOption> getFleetCreatingOptions() {
+        List<SelectOption> selectOptions = new ArrayList<>();
+        Arrays.stream(FleetType.values()).forEach(type ->
+                selectOptions.add(SelectOption.of("Создать " + type.getTitle(),
+                        "CREATE_FLEET_" + type.name())));
+        return selectOptions;
+    }
+
+    public String getTypeInfo() {
+        StringBuilder stringBuilder = new StringBuilder();
+        Arrays.stream(FleetType.values()).forEach(type -> stringBuilder.append(type.getTitle()).append(":")
+                .append(getPoint("MAX HP", String.valueOf(type.getHp())))
+                .append(getPoint("Ресурс для создания", type.getResourceTypeToCreate().name()))
+                .append(getPoint("Стоимость создания", String.valueOf(type.getCostToCreate())))
+                .append(getPoint("Ресурс для ремонта", type.getResourceTypeToService().name()))
+                .append(getPoint("Стоимость ремонта - ", String.valueOf(type.getServiceCost())))
+                .append("\n--------------------------------------\n"));
+        return stringBuilder.toString();
     }
 
     public void serviceAllFleet(long userID) throws DataBaseException {

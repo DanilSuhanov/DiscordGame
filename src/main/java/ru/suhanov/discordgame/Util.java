@@ -8,6 +8,10 @@ import java.util.Random;
 public class Util {
     private Util() {}
 
+    public static String getPoint(String title, String value) {
+        return "\n" + title + " - " + value;
+    }
+
     public static boolean allOptionsHasValue(OptionMapping ... optionMappings) {
         for (OptionMapping option : optionMappings) {
             if (option == null)
@@ -19,7 +23,7 @@ public class Util {
     public static StringBuilder listToStringList(String title, List<?> data) {
         if (data.isEmpty())
             return new StringBuilder("Список пуст!");
-        StringBuilder stringBuilder = new StringBuilder().append(title);
+        StringBuilder stringBuilder = new StringBuilder().append(title).append(":");
         data.forEach(o -> stringBuilder.append("\n").append(o.toString()));
         return stringBuilder;
     }

@@ -56,14 +56,14 @@ public class ModService {
 
     public void addModForGalaxy(String modTitle, String galaxyTitle) throws DataBaseException {
         Galaxy galaxy = galaxyService.findGalaxyByTitle(galaxyTitle);
-        GalaxyMod galaxyMod = (GalaxyMod) findModByTitle(modTitle);
+        GalaxyMod galaxyMod = new GalaxyMod(findModByTitle(modTitle));
         galaxyMod.setGalaxy(galaxy);
         modRepository.save(galaxyMod);
     }
 
     public void addModForUser(String modTitle, String user) throws DataBaseException {
         GameUser gameUser = gameUserService.findGameUserByName(user);
-        UserMod userMod = (UserMod) findModByTitle(modTitle);
+        UserMod userMod = new UserMod(findModByTitle(modTitle));
         userMod.setGameUser(gameUser);
         modRepository.save(userMod);
     }

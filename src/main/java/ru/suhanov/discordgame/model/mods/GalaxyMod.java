@@ -14,6 +14,13 @@ public class GalaxyMod extends Mod {
     @ManyToOne
     private Galaxy galaxy;
 
+    public GalaxyMod(Mod mod) {
+        setTitle(mod.getTitle());
+        setTag(mod.getTag());
+        setType(mod.getType());
+        setPercent(mod.getPercent());
+    }
+
     public GalaxyMod(ResourceType resourceType, int percent, OperationTag operationTag, String title) {
         super(resourceType, percent, operationTag, title);
     }

@@ -7,9 +7,9 @@ import ru.suhanov.discordgame.model.miner.ResourceType;
 @Getter
 @AllArgsConstructor
 public enum FleetType {
-    SMALL(ResourceType.METAL, 10, ResourceType.METAL, 5,30),
-    MEDIUM(ResourceType.METAL, 30, ResourceType.METAL, 15, 100),
-    LARGE(ResourceType.METAL, 75, ResourceType.METAL, 30, 300);
+    SMALL(ResourceType.METAL, 10, ResourceType.METAL, 5,30, "Маленький корабль"),
+    MEDIUM(ResourceType.METAL, 30, ResourceType.METAL, 15, 100, "Средний корабль"),
+    LARGE(ResourceType.METAL, 75, ResourceType.METAL, 30, 300, "Большой корабль");
 
     private final ResourceType resourceTypeToCreate;
     private final int costToCreate;
@@ -18,4 +18,6 @@ public enum FleetType {
     private final int serviceCost;
 
     private final int hp;
+
+    private final String title;
 }

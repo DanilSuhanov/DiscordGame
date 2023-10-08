@@ -15,6 +15,13 @@ public class UserMod extends Mod {
     @ManyToOne
     private GameUser gameUser;
 
+    public UserMod(Mod mod) {
+        setTitle(mod.getTitle());
+        setType(mod.getType());
+        setTag(mod.getTag());
+        setPercent(mod.getPercent());
+    }
+
     public UserMod(ResourceType resourceType, int percent, OperationTag operationTag, String title) {
         super(resourceType, percent, operationTag, title);
     }

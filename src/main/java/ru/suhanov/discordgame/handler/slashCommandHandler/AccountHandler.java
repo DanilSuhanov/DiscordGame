@@ -80,7 +80,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                     event.reply(runtimeException.getMessage()).queue();
                 }
             }
-            case "add_modifier_to_user" -> {
+            case "addModifierToUser" -> {
                 String modTitle = event.getValue("modTitle").getAsString();
                 String userName = event.getValue("userName").getAsString();
 

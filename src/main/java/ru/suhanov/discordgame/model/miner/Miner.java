@@ -65,7 +65,7 @@ public class Miner implements Comparable<Miner> {
 
     public static List<Mod> getModFromMinersMods(List<GalaxyMod> galaxyMods, ResourceType type) {
         return galaxyMods.stream().filter(mod -> mod.getType()
-                .equals(ResourceType.All) || mod.getType().equals(type))
+                .equals(ResourceType.ALL) || mod.getType().equals(type))
                 .map(m -> (Mod) m).toList();
     }
 }

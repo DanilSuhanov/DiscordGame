@@ -45,29 +45,10 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
     }
 
     @Override
-    public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
-        switch (event.getModalId()) {
-            case "createSpaceshipMod" -> {
-                String title = event.getValue("spaceshipTitle").getAsString();
-                String type = event.getValue("spaceshipType").getAsString();
-                try {
-                    spaceshipService.createSpaceship(event.getMember().getIdLong(), title,
-                            FleetType.valueOf(type));
-                    event.reply("Корабль " + title + " успешно создан!").queue();
-                } catch (DataBaseException e) {
-                    event.reply(e.getMessage()).queue();
-                } catch (IllegalArgumentException e) {
-                    event.reply("Некорректный тип!").queue();
-                }
-            }
-        }
-    }
-
-    @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (event.getComponentId().contains("spaceshipInfo:")) {
             String title = event.getComponentId().replace("spaceshipInfo:", "");
-
+            //TODO
         }
 
         switch (event.getComponentId()) {
@@ -82,28 +63,13 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
                     event.reply(e.getMessage()).queue();
                 }
             }
-            case "createSpaceship" -> {
-                TextInput subject = TextInput.create("spaceshipTitle", "Название корабля", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите название корабля...")
-                        .setMinLength(3)
-                        .setMaxLength(30)
-                        .build();
-
-                TextInput type = TextInput.create("spaceshipType", "Тип коробля", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите тип коробля: SMALL, MEDIUM, LARGE")
-                        .build();
-
-                Modal modal = Modal.create("createSpaceshipMod", "Окно создания корабля")
-                        .addComponents(ActionRow.of(subject), ActionRow.of(type))
-                        .build();
-
-                event.replyModal(modal).queue();
+            case "getTypeInfo" -> {
+                event.reply(spaceshipService.getTypeInfo()).queue();
             }
         }
     }
 
     @Override
     protected void initHandler() {
-
     }
 }
