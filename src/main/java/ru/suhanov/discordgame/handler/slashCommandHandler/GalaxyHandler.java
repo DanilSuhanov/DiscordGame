@@ -81,8 +81,11 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
         addCommand(new Command<>("map", event -> {
             MessageWithButtons message = galaxyService.getMap();
 
-            event.reply(message.getUrl() + Util.getFormatString(message.getMessage()))
-                    .addActionRow(message.getButtons()).queue();
+            if (!message.getButtons().isEmpty()) {
+                event.reply(message.getUrl() + Util.getFormatString(message.getMessage()))
+                        .addActionRow(message.getButtons()).queue();
+            } else
+                event.reply("Карта пуста!").queue();
         }));
 
 
