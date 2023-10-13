@@ -26,6 +26,8 @@ public class Galaxy {
 
     private int size;
 
+    private final List<SpecialResource> specialResources = new ArrayList<>();
+
     @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GameUser> gameUsers = new ArrayList<>();
 
