@@ -34,23 +34,26 @@ public class GalaxyService {
     public void newGalaxy(String title, int size, List<String> neighbors) throws DataBaseException {
         if (!galaxyRepository.existsByTitle(title)) {
             Galaxy galaxy = new Galaxy(title, size);
-
-            for (String neigStr : neighbors) {
-                Galaxy neig = galaxyRepository.findGalaxyByTitle(neigStr)
-                        .orElseThrow(() -> new DataBaseException("Галактика не найдена!"));
-                neig.addNeighbor(galaxy);
-                galaxy.addNeighbor(neig);
-            }
+            addNeigbor(neighbors, galaxy);
             galaxyRepository.save(galaxy);
         }
         else throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
-    public void newGalaxy(String title, int size) throws DataBaseException {
-        Galaxy galaxy = new Galaxy(title, size);
+    private void addNeigbor(List<String> neighbors, Galaxy galaxy) throws DataBaseException {
+        for (String neigStr : neighbors) {
+            Galaxy neig = galaxyRepository.findGalaxyByTitle(neigStr)
+                    .orElseThrow(() -> new DataBaseException("Галактика не найдена!"));
+            neig.addNeighbor(galaxy);
+            galaxy.addNeighbor(neig);
+        }
+    }
 
-        if (!galaxyRepository.existsByTitle(galaxy.getTitle()))
+    public void newGalaxy(String title, int size) throws DataBaseException {
+        if (!galaxyRepository.existsByTitle(title)) {
+            Galaxy galaxy = new Galaxy(title, size);
             galaxyRepository.save(galaxy);
+        }
         else throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
