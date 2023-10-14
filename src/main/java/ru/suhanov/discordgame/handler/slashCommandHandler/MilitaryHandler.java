@@ -1,27 +1,25 @@
 package ru.suhanov.discordgame.handler.slashCommandHandler;
 
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
+import ru.suhanov.discordgame.exception.JDAException;
 import ru.suhanov.discordgame.model.MessageWithItems;
 import ru.suhanov.discordgame.model.military.FleetType;
 import ru.suhanov.discordgame.service.GameUserService;
+import ru.suhanov.discordgame.service.SendService;
 import ru.suhanov.discordgame.service.SpaceshipService;
 
 @Service
+@RequiredArgsConstructor
 public class MilitaryHandler extends AbstractSlashCommandHandler {
-
     private final SpaceshipService spaceshipService;
     private final GameUserService gameUserService;
-
-    @Autowired
-    public MilitaryHandler(SpaceshipService spaceshipService, GameUserService gameUserService) {
-        this.spaceshipService = spaceshipService;
-        this.gameUserService = gameUserService;
-    }
+    private final SendService sendService;
 
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
@@ -31,8 +29,8 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
                 FleetType fleetType = FleetType.valueOf(type.replace("CREATE_FLEET_", ""));
                 String title = "Fleet" + (gameUserService.getCountOfFleet(event.getMember().getIdLong()) + 1);
                 spaceshipService.createSpaceship(event.getMember().getIdLong(), title, fleetType);
-                event.reply("Корабль " + title + " успешно создан!").queue();
-            } catch (DataBaseException | IllegalArgumentException e) {
+                sendService.sendMessageToPersonalChannel(event, "Корабль " + title + " успешно создан!");
+            } catch (DataBaseException | IllegalArgumentException | JDAException e) {
                 event.reply(e.getMessage()).queue();
             }
         }
@@ -44,8 +42,8 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
             String title = event.getComponentId().replace("spaceshipInfo:", "");
             try {
                 String info = spaceshipService.getShipInfo(title);
-                event.reply(info).queue();
-            } catch (DataBaseException e) {
+                sendService.sendMessageToPersonalChannel(event, info);
+            } catch (DataBaseException | JDAException e) {
                 event.reply(e.getMessage()).queue();
             }
         }
@@ -54,11 +52,11 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
             case "military_info" -> {
                 try {
                     MessageWithItems message = spaceshipService.getFleetInfo(event.getMember().getIdLong());
-                    event.reply(message.getMessage())
-                            .addActionRow(message.getButtons())
-                            .addActionRow(message.getSelectMenu())
-                            .queue();
-                } catch (DataBaseException e) {
+                    sendService.sendMessageToPersonalChannel(event,
+                            message.getMessage(),
+                            message.getButtons(),
+                            message.getSelectMenu());
+                } catch (DataBaseException | JDAException e) {
                     event.reply(e.getMessage()).queue();
                 }
             }

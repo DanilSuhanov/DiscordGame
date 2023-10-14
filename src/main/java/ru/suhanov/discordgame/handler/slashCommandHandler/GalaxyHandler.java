@@ -15,11 +15,13 @@ import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
+import ru.suhanov.discordgame.exception.JDAException;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.service.GalaxyService;
 import ru.suhanov.discordgame.service.GameUserService;
 import ru.suhanov.discordgame.service.ModService;
+import ru.suhanov.discordgame.service.SendService;
 
 import java.io.File;
 import java.util.List;
@@ -30,6 +32,7 @@ import java.util.Objects;
 public class GalaxyHandler extends AbstractSlashCommandHandler {
     private final GalaxyService galaxyService;
     private final ModService modService;
+    private final SendService sendService;
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
@@ -40,9 +43,9 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
 
                 try {
                     modService.addModForGalaxy(modTitle, galaxyTitle);
-                    event.reply("Модификатор " + modTitle
-                            + " успешно добавлен в галлактику " + galaxyTitle).queue();
-                } catch (DataBaseException e) {
+                    sendService.sendMessageToPersonalChannel(event, "Модификатор " + modTitle
+                            + " успешно добавлен в галлактику " + galaxyTitle);
+                } catch (DataBaseException | JDAException e) {
                     event.reply(e.getMessage()).queue();
                 }
             }
@@ -56,21 +59,21 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
             try {
                 MessageWithButtons message = galaxyService.galaxyToString(title, event.getMember().getIdLong());
                 if (!message.getButtons().isEmpty()) {
-                    event.reply(message.getMessage()).addActionRow(
-                            message.getButtons()
-                    ).queue();
+                    sendService.sendMessageToPersonalChannel(event, message.getMessage(),
+                            message.getButtons());
                 } else {
                     event.reply(message.getMessage()).queue();
                 }
-            } catch (DataBaseException e) {
+            } catch (DataBaseException | JDAException e) {
                 event.reply(e.getMessage()).queue();
             }
         } else if (event.getComponentId().contains("moveTo:")) {
             try {
                 String title = event.getComponentId().replace("moveTo:", "");
                 galaxyService.moveTo(title, event.getMember().getIdLong());
-                event.reply("Вы успешно переместились в галактику " + title + "!").queue();
-            } catch (DataBaseException e) {
+                sendService.sendMessageToPersonalChannel(event,
+                        "Вы успешно переместились в галактику " + title + "!");
+            } catch (DataBaseException | JDAException e) {
                 event.reply(e.getMessage()).queue();
             }
         }
@@ -82,8 +85,13 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
             MessageWithButtons message = galaxyService.getMap();
 
             if (!message.getButtons().isEmpty()) {
-                event.reply(message.getUrl() + Util.getFormatString(message.getMessage()))
-                        .addActionRow(message.getButtons()).queue();
+                try {
+                    sendService.sendMessageToPersonalChannel(event,
+                            message.getUrl() + Util.getFormatString(message.getMessage()),
+                            message.getButtons());
+                } catch (DataBaseException | JDAException e) {
+                    event.reply(e.getMessage()).queue();
+                }
             } else
                 event.reply("Карта пуста!").queue();
         }));
@@ -102,8 +110,9 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
                         galaxyService.newGalaxy(title.getAsString(), size.getAsInt(),
                                 List.of(neighbors.getAsString().split(" ")));
                     }
-                    event.reply("Галактика " + title.getAsString() + " успешно создана!").queue();
-                } catch (DataBaseException e) {
+                    sendService.sendMessageToPersonalChannel(event,
+                            "Галактика " + title.getAsString() + " успешно создана!");
+                } catch (DataBaseException | JDAException e) {
                     event.reply(e.getMessage()).queue();
                 }
             } else {

@@ -49,17 +49,17 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                 try {
                     factionService.createFaction(factionTitle, factionDescription,
                             event.getMember().getIdLong());
-                } catch (DataBaseException e) {
+                    sendService.sendMessageToPersonalChannel(event, "Фракция " + factionTitle + " успешно создана!");
+                } catch (DataBaseException | JDAException e) {
                     event.reply(e.getMessage()).queue();
                 }
-                event.reply("Фракция " + factionTitle + " успешно создана!").queue();
             }
             case "inviteToFactionMod" -> {
                 String memberName = event.getValue("memberName").getAsString();
                 try {
                     factionService.inviteUser(event.getMember().getIdLong(), memberName);
-                    event.reply("Пользователь успешно приглашён!").queue();
-                } catch (DataBaseException e) {
+                    sendService.sendMessageToPersonalChannel(event, "Пользователь успешно приглашён!");
+                } catch (DataBaseException | JDAException e) {
                     event.reply(e.getMessage()).queue();
                 }
             }
@@ -76,7 +76,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                             Integer.parseInt(modifierPercent),
                             OperationTag.valueOf(modifierOperationType),
                             modifierTitle);
-                    event.reply("Модификатор успешно создан!").queue();
+                    sendService.sendMessageToPersonalChannel(event, "Модификатор успешно создан!");
                 } catch (Exception runtimeException) {
                     event.reply(runtimeException.getMessage()).queue();
                 }
@@ -87,9 +87,9 @@ public class AccountHandler extends AbstractSlashCommandHandler {
 
                 try {
                     modService.addModForUser(modTitle, userName);
-                    event.reply("Модификатор " + modTitle
-                            + " добавлен для пользователя " + userName).queue();
-                } catch (DataBaseException e) {
+                    sendService.sendMessageToPersonalChannel(event, "Модификатор " + modTitle
+                            + " добавлен для пользователя " + userName);
+                } catch (DataBaseException | JDAException e) {
                     event.reply(e.getMessage()).queue();
                 }
             }
@@ -278,19 +278,21 @@ public class AccountHandler extends AbstractSlashCommandHandler {
         addCommand(new Command<>("faction_info", (event) -> {
             try {
                 String res = factionService.getFactionInfo(event.getMember().getIdLong());
-                event.reply(Util.getFormatString(res)).addActionRow(
-                        Button.primary("invite_to_faction", "Invite to Faction")
-                ).queue();
-            } catch (DataBaseException e) {
+                sendService.sendMessageToPersonalChannel(event, Util.getFormatString(res),
+                        Button.primary("invite_to_faction", "Invite to Faction"));
+            } catch (DataBaseException | JDAException e) {
                 event.reply(e.getMessage()).queue();
             }
         }));
 
         addCommand(new Command<>("modifier_info", event -> {
-            MessageWithItems messageWithItems = modService.getModsInfo();
-            event.reply(messageWithItems.getMessage())
-                    .addActionRow(messageWithItems.getButtons())
-                    .queue();
+            try {
+                MessageWithItems messageWithItems = modService.getModsInfo();
+                sendService.sendMessageToPersonalChannel(event, messageWithItems.getMessage(),
+                        messageWithItems.getButtons());
+            } catch (DataBaseException | JDAException e) {
+                event.reply(e.getMessage()).queue();
+            }
         }));
     }
 
@@ -299,8 +301,8 @@ public class AccountHandler extends AbstractSlashCommandHandler {
         try {
             miner.setTitle(title);
             minerService.newMiner(event.getMember().getIdLong(), miner);
-            event.reply("Майнер " + miner.getTitle() + " создан!").queue();
-        } catch (DataBaseException e) {
+            sendService.sendMessageToPersonalChannel(event, "Майнер " + miner.getTitle() + " создан!");
+        } catch (DataBaseException | JDAException e) {
             event.reply(e.getMessage()).queue();
         }
     }
