@@ -99,7 +99,16 @@ public class SpaceshipService {
         return selectOptions;
     }
 
-    public String getTypeInfo() {
+    public String getShipInfo(String title) throws DataBaseException {
+        return findSpaceShipByTitle(title).toString();
+    }
+
+    public Spaceship findSpaceShipByTitle(String title) throws DataBaseException {
+        return spaceshipRepository.findSpaceshipByTitle(title)
+                .orElseThrow(() -> new DataBaseException("Корабль не найден!"));
+    }
+
+    public String getTypesInfo() {
         StringBuilder stringBuilder = new StringBuilder();
         Arrays.stream(FleetType.values()).forEach(type -> stringBuilder.append(type.getTitle()).append(":")
                 .append(getPoint("MAX HP", String.valueOf(type.getHp())))

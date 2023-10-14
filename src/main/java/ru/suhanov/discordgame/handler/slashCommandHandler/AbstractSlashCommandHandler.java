@@ -12,6 +12,9 @@ public abstract class AbstractSlashCommandHandler extends Handler<SlashCommandIn
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
         commands.stream().filter(com -> com.getText().equals(event.getName()))
-                .findFirst().ifPresent(command -> command.execute(event));
+                .findFirst().ifPresent(command -> {
+                    command.execute(event);
+                    event.reply("Команда выполняется...").queue();
+                });
     }
 }

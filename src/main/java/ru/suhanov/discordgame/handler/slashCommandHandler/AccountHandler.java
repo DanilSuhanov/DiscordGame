@@ -2,7 +2,9 @@ package ru.suhanov.discordgame.handler.slashCommandHandler;
 
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
+import ru.suhanov.discordgame.exception.JDAException;
 import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.model.MessageWithItems;
 import ru.suhanov.discordgame.model.OperationTag;
@@ -24,10 +27,7 @@ import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.OilMiner;
 import ru.suhanov.discordgame.model.miner.ResourceType;
 import ru.suhanov.discordgame.model.mods.UserMod;
-import ru.suhanov.discordgame.service.FactionService;
-import ru.suhanov.discordgame.service.GameUserService;
-import ru.suhanov.discordgame.service.MinerService;
-import ru.suhanov.discordgame.service.ModService;
+import ru.suhanov.discordgame.service.*;
 
 import java.util.List;
 
@@ -38,6 +38,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
     private final FactionService factionService;
     private final MinerService minerService;
     private final ModService modService;
+    private final SendService sendService;
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
@@ -251,24 +252,28 @@ public class AccountHandler extends AbstractSlashCommandHandler {
         addCommand(new Command<>("profile", (event -> {
             try {
                 String res = gameUserService.getString(event.getMember().getIdLong());
-                event.reply(Util.getFormatString(res)).addActionRow(
-                        Button.primary("check_invitations", "Проверить приглашения в фракцию"),
+                sendService.sendMessageToPersonalChannel(event, Util.getFormatString(res), Button.primary("check_invitations", "Проверить приглашения в фракцию"),
                         Button.primary("create_faction", "Создать новую фракцию"),
                         Button.primary("miners_info", "Информация о майнерах"),
-                        Button.primary("military_info", "Информация о флоте")
-                ).queue();
-            } catch (DataBaseException e) {
+                        Button.primary("military_info", "Информация о флоте"));
+//                event.reply(Util.getFormatString(res)).addActionRow(
+//                        Button.primary("check_invitations", "Проверить приглашения в фракцию"),
+//                        Button.primary("create_faction", "Создать новую фракцию"),
+//                        Button.primary("miners_info", "Информация о майнерах"),
+//                        Button.primary("military_info", "Информация о флоте")
+//                ).queue();
+            } catch (DataBaseException | JDAException e) {
                 event.reply(e.getMessage()).queue();
             }
         })));
 
-        addCommand(new Command<>("registration", (event) -> {
+        addCommand(new Command<SlashCommandInteractionEvent>("registration", (event) -> {
             OptionMapping name = event.getOption("name");
             if (Util.allOptionsHasValue(name)) {
                 try {
                     gameUserService.newGameUser(name.getAsString(), event.getMember().getIdLong());
-                    event.reply("Пользователь - " + name.getAsString() + " зарегистрирован!").queue();
-                } catch (DataBaseException e) {
+                    sendService.sendMessageToPersonalChannel(event, "Пользователь - " + name.getAsString() + " зарегистрирован!");
+                } catch (DataBaseException | JDAException e) {
                     event.reply(e.getMessage()).queue();
                 }
             } else {

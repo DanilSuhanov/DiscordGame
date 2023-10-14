@@ -1,13 +1,7 @@
 package ru.suhanov.discordgame.handler.slashCommandHandler;
 
-import jakarta.annotation.Nonnull;
-import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.text.TextInput;
-import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
-import net.dv8tion.jda.api.interactions.modals.Modal;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +42,12 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (event.getComponentId().contains("spaceshipInfo:")) {
             String title = event.getComponentId().replace("spaceshipInfo:", "");
-            //TODO
+            try {
+                String info = spaceshipService.getShipInfo(title);
+                event.reply(info).queue();
+            } catch (DataBaseException e) {
+                event.reply(e.getMessage()).queue();
+            }
         }
 
         switch (event.getComponentId()) {
@@ -64,7 +63,7 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
                 }
             }
             case "getTypeInfo" -> {
-                event.reply(spaceshipService.getTypeInfo()).queue();
+                event.reply(spaceshipService.getTypesInfo()).queue();
             }
         }
     }
