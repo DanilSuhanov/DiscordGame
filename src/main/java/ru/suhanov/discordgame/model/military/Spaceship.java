@@ -3,7 +3,6 @@ package ru.suhanov.discordgame.model.military;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.miner.ResourceType;
 import ru.suhanov.discordgame.model.mods.Mod;
@@ -37,5 +36,11 @@ public class Spaceship {
 
     public boolean service(List<Mod> mods) {
         return owner.addResource(serviceCost, serviceCostType, mods);
+    }
+
+    @Override
+    public String toString() {
+        return "Корабль:\nНазвание - " + title + "\nТип - " + fleetType.getTitle()
+                + "\nСостояние - " + condition + "\nВладелец - " + owner.getName();
     }
 }
