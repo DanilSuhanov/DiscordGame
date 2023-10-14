@@ -33,7 +33,18 @@ public class SendService {
                                                                                        ActionComponent ... actionComponents) throws DataBaseException, JDAException {
         String memberName = gameUserService.findGameUserByDiscordId(event.getMember().getIdLong()).getName();
         MessageCreateAction send = getPersonalChannel(memberName, event).sendMessage(message);
-        for (ActionComponent actionComponent : actionComponents) {
+        for (var actionComponent : actionComponents) {
+            send.addActionRow(actionComponent);
+        }
+        send.queue();
+    }
+
+    public <T extends GenericInteractionCreateEvent> void sendMessageToPersonalChannel(@NotNull T event,
+                                                                                       String message,
+                                                                                       List<ActionComponent> ... actionComponents) throws DataBaseException, JDAException {
+        String memberName = gameUserService.findGameUserByDiscordId(event.getMember().getIdLong()).getName();
+        MessageCreateAction send = getPersonalChannel(memberName, event).sendMessage(message);
+        for (var actionComponent : actionComponents) {
             send.addActionRow(actionComponent);
         }
         send.queue();

@@ -256,18 +256,12 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                         Button.primary("create_faction", "Создать новую фракцию"),
                         Button.primary("miners_info", "Информация о майнерах"),
                         Button.primary("military_info", "Информация о флоте"));
-//                event.reply(Util.getFormatString(res)).addActionRow(
-//                        Button.primary("check_invitations", "Проверить приглашения в фракцию"),
-//                        Button.primary("create_faction", "Создать новую фракцию"),
-//                        Button.primary("miners_info", "Информация о майнерах"),
-//                        Button.primary("military_info", "Информация о флоте")
-//                ).queue();
             } catch (DataBaseException | JDAException e) {
                 event.reply(e.getMessage()).queue();
             }
         })));
 
-        addCommand(new Command<SlashCommandInteractionEvent>("registration", (event) -> {
+        addCommand(new Command<>("registration", (event) -> {
             OptionMapping name = event.getOption("name");
             if (Util.allOptionsHasValue(name)) {
                 try {
