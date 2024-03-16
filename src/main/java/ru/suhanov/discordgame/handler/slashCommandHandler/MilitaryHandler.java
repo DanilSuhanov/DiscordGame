@@ -3,8 +3,8 @@ package ru.suhanov.discordgame.handler.slashCommandHandler;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.exception.JDAException;
@@ -16,7 +16,7 @@ import ru.suhanov.discordgame.service.SpaceshipService;
 
 @Service
 @RequiredArgsConstructor
-public class MilitaryHandler extends AbstractSlashCommandHandler {
+public class MilitaryHandler extends ListenerAdapter {
     private final SpaceshipService spaceshipService;
     private final GameUserService gameUserService;
     private final SendService sendService;
@@ -64,9 +64,5 @@ public class MilitaryHandler extends AbstractSlashCommandHandler {
                 event.reply(spaceshipService.getTypesInfo()).queue();
             }
         }
-    }
-
-    @Override
-    protected void initHandler() {
     }
 }

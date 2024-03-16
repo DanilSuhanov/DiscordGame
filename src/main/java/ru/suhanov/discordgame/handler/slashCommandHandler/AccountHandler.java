@@ -2,18 +2,15 @@ package ru.suhanov.discordgame.handler.slashCommandHandler;
 
 import jakarta.annotation.Nonnull;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.SlashCommandInteraction;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
@@ -26,7 +23,6 @@ import ru.suhanov.discordgame.model.miner.MetalMiner;
 import ru.suhanov.discordgame.model.miner.Miner;
 import ru.suhanov.discordgame.model.miner.OilMiner;
 import ru.suhanov.discordgame.model.miner.ResourceType;
-import ru.suhanov.discordgame.model.mods.UserMod;
 import ru.suhanov.discordgame.service.*;
 
 import java.util.List;
@@ -42,208 +38,179 @@ public class AccountHandler extends AbstractSlashCommandHandler {
 
     @Override
     public void onModalInteraction(@Nonnull ModalInteractionEvent event) {
-        switch (event.getModalId()) {
-            case "createFactionMod" -> {
-                String factionTitle = event.getValue("factionTitle").getAsString();
-                String factionDescription = event.getValue("factionDescription").getAsString();
-                try {
+        try {
+            switch (event.getModalId()) {
+                case "createFactionMod" -> {
+                    String factionTitle = event.getValue("factionTitle").getAsString();
+                    String factionDescription = event.getValue("factionDescription").getAsString();
                     factionService.createFaction(factionTitle, factionDescription,
                             event.getMember().getIdLong());
                     sendService.sendMessageToPersonalChannel(event, "Фракция " + factionTitle + " успешно создана!");
-                } catch (DataBaseException | JDAException e) {
-                    event.reply(e.getMessage()).queue();
                 }
-            }
-            case "inviteToFactionMod" -> {
-                String memberName = event.getValue("memberName").getAsString();
-                try {
+                case "inviteToFactionMod" -> {
+                    String memberName = event.getValue("memberName").getAsString();
                     factionService.inviteUser(event.getMember().getIdLong(), memberName);
                     sendService.sendMessageToPersonalChannel(event, "Пользователь успешно приглашён!");
-                } catch (DataBaseException | JDAException e) {
-                    event.reply(e.getMessage()).queue();
                 }
-            }
-            case "createOilMinerMod" -> createMiner(new OilMiner(), event);
-            case "createMetalMinerMod" -> createMiner(new MetalMiner(), event);
-            case "createModifierMod" -> {
-                String modifierResourceType = event.getValue("modifierResourceType").getAsString();
-                String modifierPercent = event.getValue("modifierPercent").getAsString();
-                String modifierOperationType = event.getValue("modifierOperationType").getAsString();
-                String modifierTitle = event.getValue("modifierTitle").getAsString();
+                case "createOilMinerMod" -> createMiner(new OilMiner(), event);
+                case "createMetalMinerMod" -> createMiner(new MetalMiner(), event);
+                case "createModifierMod" -> {
+                    String modifierResourceType = event.getValue("modifierResourceType").getAsString();
+                    String modifierPercent = event.getValue("modifierPercent").getAsString();
+                    String modifierOperationType = event.getValue("modifierOperationType").getAsString();
+                    String modifierTitle = event.getValue("modifierTitle").getAsString();
 
-                try {
                     modService.createMod(ResourceType.valueOf(modifierResourceType),
                             Integer.parseInt(modifierPercent),
                             OperationTag.valueOf(modifierOperationType),
                             modifierTitle);
                     sendService.sendMessageToPersonalChannel(event, "Модификатор успешно создан!");
-                } catch (Exception runtimeException) {
-                    event.reply(runtimeException.getMessage()).queue();
                 }
-            }
-            case "addModifierToUser" -> {
-                String modTitle = event.getValue("modTitle").getAsString();
-                String userName = event.getValue("userName").getAsString();
+                case "addModifierToUser" -> {
+                    String modTitle = event.getValue("modTitle").getAsString();
+                    String userName = event.getValue("userName").getAsString();
 
-                try {
                     modService.addModForUser(modTitle, userName);
                     sendService.sendMessageToPersonalChannel(event, "Модификатор " + modTitle
                             + " добавлен для пользователя " + userName);
-                } catch (DataBaseException | JDAException e) {
-                    event.reply(e.getMessage()).queue();
                 }
             }
+        } catch (DataBaseException | JDAException e) {
+            event.reply(e.getMessage()).queue();
         }
     }
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        if (event.getComponentId().contains("acceptInvite:")) {
-            String title = event.getComponentId().replace("acceptInvite:", "");
-            try {
+        try {
+            if (event.getComponentId().contains("acceptInvite:")) {
+                String title = event.getComponentId().replace("acceptInvite:", "");
                 factionService.acceptInvitation(title, event.getMember().getIdLong());
                 event.reply("Приглашение во фракцию " + title + " принято!").queue();
-            } catch (DataBaseException e) {
-                event.reply(e.getMessage()).queue();
-            }
-        } else if (event.getComponentId().contains("workMiner:")) {
-            try {
+            } else if (event.getComponentId().contains("workMiner:")) {
                 String title = event.getComponentId().replace("workMiner:", "");
                 event.reply(minerService.workMiner(event.getMember().getIdLong(), title)).queue();
-            } catch (DataBaseException e) {
-                event.reply(e.getMessage()).queue();
             }
-        }
 
-        switch (event.getComponentId()) {
-            case "createModifier" -> {
-                TextInput operationType = TextInput.create("modifierOperationType", "Тип операции", TextInputStyle.SHORT)
-                        .setPlaceholder("FLEET_CREATING/SERVICE_FLEET/any")
-                        .build();
+            switch (event.getComponentId()) {
+                case "createModifier" -> {
+                    TextInput operationType = TextInput.create("modifierOperationType", "Тип операции", TextInputStyle.SHORT)
+                            .setPlaceholder("FLEET_CREATING/SERVICE_FLEET/any")
+                            .build();
 
-                TextInput resourceType = TextInput.create("modifierResourceType", "Тип ресурса модификатора", TextInputStyle.SHORT)
-                        .setPlaceholder("METAL/OIL/ALL")
-                        .build();
+                    TextInput resourceType = TextInput.create("modifierResourceType", "Тип ресурса модификатора", TextInputStyle.SHORT)
+                            .setPlaceholder("METAL/OIL/ALL")
+                            .build();
 
-                TextInput percent = TextInput.create("modifierPercent", "Процент модификатора", TextInputStyle.SHORT)
-                        .setPlaceholder("0-100")
-                        .build();
+                    TextInput percent = TextInput.create("modifierPercent", "Процент модификатора", TextInputStyle.SHORT)
+                            .setPlaceholder("0-100")
+                            .build();
 
-                TextInput title = TextInput.create("modifierTitle", "Название модификатора", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите название...")
-                        .build();
+                    TextInput title = TextInput.create("modifierTitle", "Название модификатора", TextInputStyle.SHORT)
+                            .setPlaceholder("Введите название...")
+                            .build();
 
-                Modal modal = Modal.create("createModifierMod", "Окно создание модификатора")
-                        .addComponents(
-                                ActionRow.of(operationType),
-                                ActionRow.of(resourceType),
-                                ActionRow.of(percent),
-                                ActionRow.of(title))
-                        .build();
+                    Modal modal = Modal.create("createModifierMod", "Окно создание модификатора")
+                            .addComponents(
+                                    ActionRow.of(operationType),
+                                    ActionRow.of(resourceType),
+                                    ActionRow.of(percent),
+                                    ActionRow.of(title))
+                            .build();
 
-                event.replyModal(modal).queue();
-            }
-            case "addModifierToUser" -> {
-                TextInput modTitle = TextInput.create("modTitle", "Название модификатора", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите название модификатора...")
-                        .build();
+                    event.replyModal(modal).queue();
+                }
+                case "addModifierToUser" -> {
+                    TextInput modTitle = TextInput.create("modTitle", "Название модификатора", TextInputStyle.SHORT)
+                            .setPlaceholder("Введите название модификатора...")
+                            .build();
 
-                TextInput userName = TextInput.create("userName", "Имя пользователя", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите имя пользователя...")
-                        .build();
+                    TextInput userName = TextInput.create("userName", "Имя пользователя", TextInputStyle.SHORT)
+                            .setPlaceholder("Введите имя пользователя...")
+                            .build();
 
-                Modal modal = Modal.create("addModifierToUser", "Окно добавления модификатора для пользователя")
-                        .addComponents(
-                                ActionRow.of(modTitle),
-                                ActionRow.of(userName))
-                        .build();
+                    Modal modal = Modal.create("addModifierToUser", "Окно добавления модификатора для пользователя")
+                            .addComponents(
+                                    ActionRow.of(modTitle),
+                                    ActionRow.of(userName))
+                            .build();
 
-                event.replyModal(modal).queue();
-            }
-            case "check_invitations" -> {
-                try {
+                    event.replyModal(modal).queue();
+                }
+                case "check_invitations" -> {
                     List<String> res = factionService.getInvites(event.getMember().getIdLong());
                     event.reply(Util.getFormatString(res.get(0))).addActionRow(
                             factionService.titlesToButtons(res.subList(1, res.size()))
                     ).queue();
-                } catch (DataBaseException e) {
-                    event.reply(e.getMessage()).queue();
                 }
-            }
-            case "create_faction" -> {
-                TextInput subject = TextInput.create("factionTitle", "Название фракции", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите название фракции...")
-                        .setMinLength(3)
-                        .setMaxLength(30)
-                        .build();
+                case "create_faction" -> {
+                    TextInput subject = TextInput.create("factionTitle", "Название фракции", TextInputStyle.SHORT)
+                            .setPlaceholder("Введите название фракции...")
+                            .setMinLength(3)
+                            .setMaxLength(30)
+                            .build();
 
-                TextInput body = TextInput.create("factionDescription", "Описание фракции", TextInputStyle.PARAGRAPH)
-                        .setPlaceholder("Введите описание фракции...")
-                        .setMinLength(5)
-                        .setMaxLength(100)
-                        .build();
+                    TextInput body = TextInput.create("factionDescription", "Описание фракции", TextInputStyle.PARAGRAPH)
+                            .setPlaceholder("Введите описание фракции...")
+                            .setMinLength(5)
+                            .setMaxLength(100)
+                            .build();
 
-                Modal modal = Modal.create("createFactionMod", "Окно создание фракции")
-                        .addComponents(ActionRow.of(subject), ActionRow.of(body))
-                        .build();
+                    Modal modal = Modal.create("createFactionMod", "Окно создание фракции")
+                            .addComponents(ActionRow.of(subject), ActionRow.of(body))
+                            .build();
 
-                event.replyModal(modal).queue();
-            }
-            case "invite_to_faction" -> {
-                TextInput subject = TextInput.create("memberName", "Имя пользователя", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите имя пользователя...")
-                        .setMinLength(3)
-                        .setMaxLength(30)
-                        .build();
+                    event.replyModal(modal).queue();
+                }
+                case "invite_to_faction" -> {
+                    TextInput subject = TextInput.create("memberName", "Имя пользователя", TextInputStyle.SHORT)
+                            .setPlaceholder("Введите имя пользователя...")
+                            .setMinLength(3)
+                            .setMaxLength(30)
+                            .build();
 
-                Modal modal = Modal.create("inviteToFactionMod", "Окно приглашения во фракцию")
-                        .addComponents(ActionRow.of(subject))
-                        .build();
+                    Modal modal = Modal.create("inviteToFactionMod", "Окно приглашения во фракцию")
+                            .addComponents(ActionRow.of(subject))
+                            .build();
 
-                event.replyModal(modal).queue();
-            }
-            case "miners_info" -> {
-                try {
+                    event.replyModal(modal).queue();
+                }
+                case "miners_info" -> {
                     MessageWithButtons message = gameUserService.getMinersInfo(event.getMember().getIdLong());
-                    event.reply(Util.getFormatString(message.getMessage()))
-                            .addActionRow(message.getButtons()).queue();
-                } catch (DataBaseException e) {
-                    event.reply(e.getMessage()).queue();
+                    sendService.buildMessageWithButtons(event.reply(Util.getFormatString(message.getMessage())), message.getButtons()).queue();
                 }
-            }
-            case "workAllMiners" -> {
-                try {
+                case "workAllMiners" -> {
                     event.reply(minerService.workAll(event.getMember().getIdLong())).queue();
-                } catch (DataBaseException e) {
-                    event.reply(e.getMessage()).queue();
+                }
+                case "create_oil_miner" -> {
+                    TextInput subject = TextInput.create("minerTitle", "Название топливного майнера", TextInputStyle.SHORT)
+                            .setPlaceholder("Введите название топливного майнера...")
+                            .setMinLength(3)
+                            .setMaxLength(30)
+                            .build();
+
+                    Modal modal = Modal.create("createOilMinerMod", "Окно создания топлиного майнера")
+                            .addComponents(ActionRow.of(subject))
+                            .build();
+
+                    event.replyModal(modal).queue();
+                }
+                case "create_metal_miner" -> {
+                    TextInput subject = TextInput.create("minerTitle", "Название майнера метала", TextInputStyle.SHORT)
+                            .setPlaceholder("Введите название майнера метала...")
+                            .setMinLength(3)
+                            .setMaxLength(30)
+                            .build();
+
+                    Modal modal = Modal.create("createMetalMinerMod", "Окно создания майнера метала")
+                            .addComponents(ActionRow.of(subject))
+                            .build();
+
+                    event.replyModal(modal).queue();
                 }
             }
-            case "create_oil_miner" -> {
-                TextInput subject = TextInput.create("minerTitle", "Название топливного майнера", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите название топливного майнера...")
-                        .setMinLength(3)
-                        .setMaxLength(30)
-                        .build();
-
-                Modal modal = Modal.create("createOilMinerMod", "Окно создания топлиного майнера")
-                        .addComponents(ActionRow.of(subject))
-                        .build();
-
-                event.replyModal(modal).queue();
-            }
-            case "create_metal_miner" -> {
-                TextInput subject = TextInput.create("minerTitle", "Название майнера метала", TextInputStyle.SHORT)
-                        .setPlaceholder("Введите название майнера метала...")
-                        .setMinLength(3)
-                        .setMaxLength(30)
-                        .build();
-
-                Modal modal = Modal.create("createMetalMinerMod", "Окно создания майнера метала")
-                        .addComponents(ActionRow.of(subject))
-                        .build();
-
-                event.replyModal(modal).queue();
-            }
+        } catch (DataBaseException e) {
+            event.reply(e.getMessage()).queue();
         }
     }
 
