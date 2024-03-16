@@ -16,6 +16,7 @@ import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.exception.JDAException;
+import ru.suhanov.discordgame.exception.StepException;
 import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.model.MessageWithItems;
 import ru.suhanov.discordgame.model.OperationTag;
@@ -75,7 +76,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                             + " добавлен для пользователя " + userName);
                 }
             }
-        } catch (DataBaseException | JDAException e) {
+        } catch (DataBaseException | JDAException | StepException e) {
             event.reply(e.getMessage()).queue();
         }
     }
@@ -209,7 +210,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
                     event.replyModal(modal).queue();
                 }
             }
-        } catch (DataBaseException e) {
+        } catch (DataBaseException | StepException e) {
             event.reply(e.getMessage()).queue();
         }
     }
@@ -269,7 +270,7 @@ public class AccountHandler extends AbstractSlashCommandHandler {
             miner.setTitle(title);
             minerService.newMiner(event.getMember().getIdLong(), miner);
             sendService.sendMessageToPersonalChannel(event, "Майнер " + miner.getTitle() + " создан!");
-        } catch (DataBaseException | JDAException e) {
+        } catch (DataBaseException | JDAException | StepException e) {
             event.reply(e.getMessage()).queue();
         }
     }

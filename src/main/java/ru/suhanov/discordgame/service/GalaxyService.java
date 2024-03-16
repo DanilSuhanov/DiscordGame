@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
+import ru.suhanov.discordgame.exception.StepException;
 import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.model.map.Galaxy;
 import ru.suhanov.discordgame.model.GameUser;
@@ -23,12 +24,14 @@ public class GalaxyService {
     public String MAP;
     private final GalaxyRepository galaxyRepository;
     private final GameUserService gameUserService;
+    private final StepService stepService;
 
     @Autowired
     @Lazy
-    public GalaxyService(GalaxyRepository galaxyRepository, GameUserService gameUserService) {
+    public GalaxyService(GalaxyRepository galaxyRepository, GameUserService gameUserService, StepService stepService) {
         this.galaxyRepository = galaxyRepository;
         this.gameUserService = gameUserService;
+        this.stepService = stepService;
     }
 
     public void newGalaxy(String title, int size, List<String> neighbors) throws DataBaseException {
@@ -57,8 +60,11 @@ public class GalaxyService {
         else throw new DataBaseException("Галактика с таким названием уже существует!");
     }
 
-    public Galaxy getRandomGalaxy() {
+    public Galaxy getRandomGalaxy() throws DataBaseException {
         List<Galaxy> galaxies = galaxyRepository.findAll();
+        if (galaxies.isEmpty()) {
+            throw new DataBaseException("Список галактик пуст");
+        }
         int random = new Random().nextInt(0, galaxies.size());
         return galaxies.get(random);
     }
@@ -90,9 +96,10 @@ public class GalaxyService {
         return new MessageWithButtons(stringBuilder.toString(), buttons, MAP);
     }
 
-    public void moveTo(String galaxyTitle, long userId) throws DataBaseException {
+    public void moveTo(String galaxyTitle, long userId) throws DataBaseException, StepException {
         Galaxy galaxy = findGalaxyByTitle(galaxyTitle);
         GameUser gameUser = gameUserService.findGameUserByDiscordId(userId);
+        stepService.checkStep(gameUser.getName());
 
         if (galaxy.getNeighbors().contains(gameUser.getLocation())) {
             if (gameUser.getOil() >= MOVING_COSTS) {

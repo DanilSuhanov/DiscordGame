@@ -20,7 +20,6 @@ public class MetalMiner extends Miner {
     public static final int COST = 20;
     public MetalMiner() {
         type = ResourceType.METAL;
-        lastWorkTime = LocalDateTime.now().minusHours(getReloadTime());
     }
 
     @Override

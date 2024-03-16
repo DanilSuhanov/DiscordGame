@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.exception.JDAException;
+import ru.suhanov.discordgame.exception.StepException;
 import ru.suhanov.discordgame.model.MessageWithItems;
 import ru.suhanov.discordgame.model.military.FleetType;
 import ru.suhanov.discordgame.service.GameUserService;
@@ -30,7 +31,7 @@ public class MilitaryHandler extends ListenerAdapter {
                 String title = "Fleet" + (gameUserService.getCountOfFleet(event.getMember().getIdLong()) + 1);
                 spaceshipService.createSpaceship(event.getMember().getIdLong(), title, fleetType);
                 sendService.sendMessageToPersonalChannel(event, "Корабль " + title + " успешно создан!");
-            } catch (DataBaseException | IllegalArgumentException | JDAException e) {
+            } catch (DataBaseException | IllegalArgumentException | JDAException | StepException e) {
                 event.reply(e.getMessage()).queue();
             }
         }

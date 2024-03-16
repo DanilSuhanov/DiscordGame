@@ -1,13 +1,13 @@
 package ru.suhanov.discordgame.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import ru.suhanov.discordgame.exception.DataBaseException;
+import ru.suhanov.discordgame.exception.StepException;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.MessageWithItems;
 import ru.suhanov.discordgame.model.OperationTag;
@@ -24,17 +24,12 @@ import java.util.List;
 import static ru.suhanov.discordgame.Util.getPoint;
 
 @Service
-@EnableScheduling
 @Transactional
+@RequiredArgsConstructor
 public class SpaceshipService {
     private final SpaceshipRepository spaceshipRepository;
     private final GameUserService gameUserService;
-
-    @Autowired
-    public SpaceshipService(SpaceshipRepository spaceshipRepository, GameUserService gameUserService) {
-        this.spaceshipRepository = spaceshipRepository;
-        this.gameUserService = gameUserService;
-    }
+    private final StepService stepService;
 
     private void newSpaceship(Spaceship spaceship) throws DataBaseException {
         if (!spaceshipRepository.existsSpaceshipByTitle(spaceship.getTitle()))
@@ -42,8 +37,9 @@ public class SpaceshipService {
         else throw new DataBaseException("Корабль с таким именем уже существует!");
     }
 
-    public void createSpaceship(long userId, String title, FleetType fleetType) throws DataBaseException {
+    public void createSpaceship(long userId, String title, FleetType fleetType) throws DataBaseException, StepException {
         GameUser gameUser = gameUserService.findGameUserByDiscordId(userId);
+        stepService.checkStep(gameUser.getName());
 
         Spaceship spaceship = new Spaceship();
         spaceship.setFleetType(fleetType);

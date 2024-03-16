@@ -16,6 +16,7 @@ import ru.suhanov.discordgame.Util;
 import ru.suhanov.discordgame.comand.Command;
 import ru.suhanov.discordgame.exception.DataBaseException;
 import ru.suhanov.discordgame.exception.JDAException;
+import ru.suhanov.discordgame.exception.StepException;
 import ru.suhanov.discordgame.model.GameUser;
 import ru.suhanov.discordgame.model.MessageWithButtons;
 import ru.suhanov.discordgame.service.GalaxyService;
@@ -73,7 +74,7 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
                 galaxyService.moveTo(title, event.getMember().getIdLong());
                 sendService.sendMessageToPersonalChannel(event,
                         "Вы успешно переместились в галактику " + title + "!");
-            } catch (DataBaseException | JDAException e) {
+            } catch (DataBaseException | JDAException | StepException e) {
                 event.reply(e.getMessage()).queue();
             }
         }
@@ -110,9 +111,8 @@ public class GalaxyHandler extends AbstractSlashCommandHandler {
                         galaxyService.newGalaxy(title.getAsString(), size.getAsInt(),
                                 List.of(neighbors.getAsString().split(" ")));
                     }
-                    sendService.sendMessageToPersonalChannel(event,
-                            "Галактика " + title.getAsString() + " успешно создана!");
-                } catch (DataBaseException | JDAException e) {
+                    event.reply("Галактика " + title.getAsString() + " успешно создана!").queue();
+                } catch (DataBaseException e) {
                     event.reply(e.getMessage()).queue();
                 }
             } else {

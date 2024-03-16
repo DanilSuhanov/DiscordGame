@@ -36,6 +36,7 @@ public class GameUser {
 
     private int metal;
 
+
     @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Miner> miners;
 
@@ -60,6 +61,13 @@ public class GameUser {
     //OwnedFaction
     @OneToOne(mappedBy = "leader")
     private Faction ownedFaction;
+
+    //StepSystem
+    private boolean step;
+
+    private int minerValue;
+
+    private int buildValue;
 
     //Mods
     @OneToMany
@@ -118,7 +126,7 @@ public class GameUser {
 
     public String getMinersInfo() {
         StringBuilder stringBuilder = new StringBuilder();
-        if (miners.size() > 0) {
+        if (!miners.isEmpty()) {
             stringBuilder.append("Майнеры: ");
             for (Miner miner : miners) {
                 stringBuilder.append("\n").append(miner.getTitle())
@@ -127,9 +135,7 @@ public class GameUser {
                 if (miner.readyToWork()) {
                     stringBuilder.append("Готов к работе!");
                 } else {
-                    stringBuilder.append("Не готов к работе, осталось - ")
-                            .append(miner.getReloadTime() * 60L - Duration.between(miner.getLastWorkTime(), LocalDateTime.now()).getSeconds()/60)
-                            .append(" минут.");
+                    stringBuilder.append("Не готов к работе, осталось - ходы для работы майнеров закончились!");
                 }
             }
         } else {

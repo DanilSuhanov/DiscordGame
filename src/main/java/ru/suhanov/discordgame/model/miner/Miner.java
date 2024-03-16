@@ -24,9 +24,6 @@ public class Miner implements Comparable<Miner> {
 
     protected String title = "NotSet";
 
-    protected LocalDateTime lastWorkTime;
-    private int reloadTime = 1;
-
     public boolean pay(GameUser gameUser) {
         return true;
     }
@@ -44,13 +41,12 @@ public class Miner implements Comparable<Miner> {
     public String start() {
         if (!readyToWork())
             return "Майнер " + title + " ещё не готов к работе!";
-        String res = work();
-        lastWorkTime = LocalDateTime.now();
-        return res;
+        owner.setMinerValue(owner.getMinerValue() - 1);
+        return work();
     }
 
     public boolean readyToWork() {
-        return lastWorkTime.plusHours(reloadTime).isBefore(LocalDateTime.now());
+        return owner.getMinerValue() >= 1;
     }
 
     @Override

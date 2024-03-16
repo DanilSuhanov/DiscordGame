@@ -17,7 +17,6 @@ public class OilMiner extends Miner{
     public static final int COST = 10;
     public OilMiner() {
         type = ResourceType.OIL;
-        lastWorkTime = LocalDateTime.now().minusHours(getReloadTime());
     }
 
     @Override
